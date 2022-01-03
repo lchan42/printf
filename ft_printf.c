@@ -5,6 +5,9 @@ HEADER
 
 #include"ft_printf.h"
 
+/*************************************
+*********chained list fonctions*******
+**************************************/
 size_t	ft_strlen(const char *s)
 {
 	size_t	i;
@@ -106,6 +109,11 @@ void	ft_add_str_content(char *str, t_list **strchain)
 	new_chain = ft_lstnew(ft_strndup(str, count), count);	
 	ft_lstadd_back(strchain, new_chain);
 }
+/*************************************
+****end of chained list fonctions****
+**************************************/
+
+
 
 int	ft_printf(char *str, ...)
 {
@@ -133,9 +141,12 @@ int	ft_printf(char *str, ...)
 
 int	main(void)
 {
+	char	test[] = "ceci est un petit test";
 	int	result;
+	int	real_result;
 
-	result = ft_printf("ceci est un petit test");
-	write(1, "ALL GOOD\n", 9);
+	result = ft_printf("ceci est un petit test", test);
 	printf("result final no segfault = %d\n", result);
+	real_result = printf("%s", test);
+	printf("real printf result = %d\n", real_result);
 }
