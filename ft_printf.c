@@ -1,7 +1,14 @@
-/*******************************************
-HEADER
-*********************************************/
-
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_printf.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
+/*   Updated: 2022/01/03 19:40:02 by lchan            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include"ft_printf.h"
 
@@ -113,7 +120,64 @@ void	ft_add_str_content(char *str, t_list **strchain)
 ****end of chained list fonctions****
 **************************************/
 
+char    *ft_strchr(const char *s, int c)
+{
+        size_t  i;
 
+        i = 0;
+        while (s[i])
+        {
+                if (s[i] == (unsigned char) c)
+                        return ((char *) &s[i]);
+                i++;
+        }
+        if (c == '\0')
+                return ((char *) &s[i]);
+        return (NULL);
+}
+/*************************************
+ ********end of libft functions*******
+ *************************************/
+
+void	specification_tree(char c, int va_arg)
+{
+	if (c == 'c')
+		printf("\nI found a c\n");
+	else if (c == 's')
+		printf("\nI found a s\n");
+	else if (c == 'p')
+		printf("\nI found a p\n");
+	else if (c == 'd')
+		printf("\nI found a d\n");
+	else if (c == 'i')
+		printf("\nI found a i\n");
+	else if (c == 'u')
+		printf("\nI found a u\n");
+	else if (c == 'x')
+		printf("\nI found a x\n");
+	else if (c == 'X')
+		printf("\nI found a X\n");
+	else if (c == '%')
+		printf("\nI found a percentage\n");
+}
+
+int	find_specifier_position(char *str, char *specifier, int va_arg)
+{
+	int	count;
+
+	count = 2;
+	while (*(++str))
+	{
+		if (ft_strchr(specifier, *str))
+		{
+			specification_tree(*str, va_arg);
+			return(count);
+		}
+		else
+			count++;
+	}
+	return (count);
+}
 
 int	ft_printf(char *str, ...)
 {
@@ -127,11 +191,13 @@ int	ft_printf(char *str, ...)
 	while (*str)
 	{
 		if (*str == '%')
-			printf("the work is ongoing, please find another sentence\n");
+			str += find_specifier_position(str, "cspdiuxX%", va_arg(arg_list, int));
 		else
+		{
 			ft_add_str_content(str, &strchain);	
-		while (*str && *str != '%')
-			str++;
+			while (*str && *str != '%')
+				str++;
+		}
 	}
 	va_end(arg_list);
 	result = ft_print_list_result(strchain);
@@ -145,8 +211,8 @@ int	main(void)
 	int	result;
 	int	real_result;
 
-	result = ft_printf("ceci est un petit test", test);
-	printf("result final no segfault = %d\n", result);
+	result = ft_printf("ceci %s est un %c petit %s test", test);
+	printf("\nresult final no segfault = %d\n", result);
 	real_result = printf("%s", test);
-	printf("real printf result = %d\n", real_result);
+	printf("\nreal printf result = %d\n", real_result);
 }
