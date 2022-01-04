@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/03 19:40:00 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/04 18:07:22 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,16 +30,39 @@ typedef struct s_list
 	int				result;
 	struct s_list	*next;
 }	t_list;
-/*
+
+typedef struct s_specifier
+{
+	char	specifier;
+	int		flags;
+	int		precision_digits;
+	char	*content;
+}	t_specifier;
+
 enum e_flags
 {
-	HASHTAG = 1,
-	SPACE = 2,
-	SIGN = 4,
-	LEFT_JUSTIFY = 8,
-	ZERO = 16,
-	DOT = 32,
+	ALTERNATE_FORME = 1,//only works with x, X put ox 
+	SPACE = 2,// is overwritten by PLUS_SIGN
+	PLUS_SIGN = 4, // overrights SPACE
+	LEFT_ADJUSTMENT = 8, //overrights ZERO0
+	ZERO = 16,//IS OVERWRITTEN BY LEFT_ADJUdSTMENT
+	DOT = 32, // gives the lengh to print if is string, else if number or hexa the dot is treated as ZERO
 };
-*/
+
+//chained list
+size_t  ft_strlen(const char *s);
+t_list  *ft_lstlast(t_list *lst);
+t_list  *ft_lstnew(void *content, int count);
+void    ft_lstadd_back(t_list **alst, t_list *new);
+int     ft_print_list_result(t_list *alst);
+void    free_list(t_list *alst);
+
+//utiles
+char    *ft_strndup(const char *s1, int count);
+void    ft_add_str_content(char *str, t_list **strchain);
+char    *ft_strchr(const char *s, int c);
+void    specifier_tree(char c, int va_arg);
+int     parsing(char *str, int va_arg);
+int     ft_printf(char *str, ...);
 
 #endif 

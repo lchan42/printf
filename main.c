@@ -11,24 +11,22 @@ int	main(void)
 	printf("displayed space  5d: %10d\n", age);
 	printf("displayed space+#5d: %+10d\n", age); //space is ignored if + is here ? 
 	printf("displayed 05d: %05d\n", age);
-	printf("age = %10d\n", age);
+	printf("name = %.1s\n", name); //precision number with a string : the dot gives the lengh to print;
+	printf("age = %.10d\n", age); // missimg decimal point. dot seems to be treated as ZERO
+	printf("age = %.p\n", &age);
+	printf("age = %.10p ", &age); printf(" Dot is ignored with addresse\n");
+	printf("age = %x ", age); printf("\n");
+	printf("age = %.10x ", age); printf("Dot works like ZERO with hexa\n");
+	printf("age = %-.10x ", age); printf("even with - the . that works like zero is not overwritten\n");
+	printf("age = %-010x ", age); printf("however with -010x the minus is ignored\n");
+	printf("age = %#.10x ", age); printf("ALTERNATE_FORME has to be writen first otherwize it does not work\n");
+	printf("conclusion : the Dot change directly the forme of the result. the Hashtag only rights an ox before it");	
+	printf("age = %10d", age); printf("10d tells that I want in minumun 10 byts\n");
+	printf("age = %# 10d", age); printf("the didgit before the specifier tells the information\n");
+	printf("age = %010d", age); printf("the didgit before the specifier tells the informatiom\n");
+	printf("age = %"); printf("the didgit before the specifier tells the informatiom\n");
 
-
-
-	printf("Birth place = %-15s that is the birth place\n", birth_place);
-	printf("crit rate = %5.f\n", crit_rate);
-	printf("crit rate = %5.f\n", crit_rate);
-	printf("crit damage = %5f (full number)\n", crit_damage);
-	printf("crit damage = %5.f (. precision)\n", crit_damage);
-	printf("crit damage = %5.1f (.1 precision)\n", crit_damage);
-	printf("crit damage = %5.2f (.2 precision)\n", crit_damage);
-	printf("crit damage = %5.3f (.3 precision)\n", crit_damage);
-	printf("crit damage = %#5.3f (.3 precision)\n", crit_damage); // # by it self does nothing/
-	printf("crit damage = %#o5.3f (#o5.3f)\n", age);
-	printf("crit damage = %5.3f (.3 precision)\n", crit_damage);
-	printf("crit damage = %                      fol", crit_damage); //will find the f no mater what is behind
-	printf("crit damage = % # 5.423fol", crit_damage); //can have an unlimited number of space but rest has to be linked
-
+	printf("age = %#######-10.x", age); printf("we can have an unlimited numbers of specifier\n");
 
 }
 /*****************************

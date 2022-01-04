@@ -6,14 +6,14 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/03 19:40:02 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/04 18:07:13 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"ft_printf.h"
 
 /*************************************
-*********chained list fonctions*******
+*********utiles*******
 **************************************/
 size_t	ft_strlen(const char *s)
 {
@@ -25,6 +25,31 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
+int     ft_isdigit(int c)
+{
+        if (c >= '0' && c <= '9')
+                return (1);
+        return (0);
+}
+
+char    *ft_strchr(const char *s, int c)
+{
+        size_t  i;
+
+        i = 0;
+        while (s[i])
+        {
+                if (s[i] == (unsigned char) c)
+                        return ((char *) &s[i]);
+                i++;
+        }
+        if (c == '\0')
+                return ((char *) &s[i]);
+        return (NULL);
+}
+/*************************************
+*********chained list fonctions*******
+**************************************/
 t_list	*ft_lstlast(t_list *lst)
 {
 	if (!lst)
@@ -116,30 +141,13 @@ void	ft_add_str_content(char *str, t_list **strchain)
 	new_chain = ft_lstnew(ft_strndup(str, count), count);	
 	ft_lstadd_back(strchain, new_chain);
 }
-/*************************************
-****end of chained list fonctions****
-**************************************/
 
-char    *ft_strchr(const char *s, int c)
-{
-        size_t  i;
 
-        i = 0;
-        while (s[i])
-        {
-                if (s[i] == (unsigned char) c)
-                        return ((char *) &s[i]);
-                i++;
-        }
-        if (c == '\0')
-                return ((char *) &s[i]);
-        return (NULL);
-}
 /*************************************
- ********end of libft functions*******
+ ********specifier_tree***************
  *************************************/
 
-void	specification_tree(char c, int va_arg)
+void	specifier_tree(char c, int va_arg)
 {
 	if (c == 'c')
 		printf("\nI found a c\n");
@@ -161,22 +169,86 @@ void	specification_tree(char c, int va_arg)
 		printf("\nI found a percentage\n");
 }
 
-int	find_specifier_position(char *str, char *specifier, int va_arg)
+/*************************************
+ * *******position du curseur*********
+ * ***********************************/
+int	jump_specifier (char *str)
 {
-	int	count;
+	int	jump_len;
 
-	count = 2;
+	jump_len = 2;
 	while (*(++str))
 	{
-		if (ft_strchr(specifier, *str))
-		{
-			specification_tree(*str, va_arg);
-			return(count);
-		}
+		if (ft_strchr("cspdiuxX%", *str))
+			return(jump_len);
 		else
-			count++;
+			jump_len++;
 	}
-	return (count);
+	return (0);
+}
+
+/*********************************
+ ************ parsing*************
+ * ********************************/
+/*
+int	flag_overwrites(int	flags)
+{
+	// cours du bittrix
+}
+*/
+int		parsing_bonus_flags_value(char	flag)
+{
+	if (flag == '#')
+		return (ALTERNATE_FORME);
+	else if (flag == ' ')
+		return (SPACE);
+	else if (flag == '+')
+		return (PLUS_SIGN);
+	else if (flag == '-')
+		return (LEFT_ADJUSTMENT);
+	else if (flag == '0')
+		return (ZERO);
+	else if (flag == '.')
+		return (DOT);
+	return (0);
+}
+
+void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
+{
+	write (1, "initial str = ", 14);
+	write (1, str, len);
+	write (1, "\n", 1);
+	while (*(++str) != specifier_struct->specifier)
+	{
+		while ((!ft_isdigit(*str)) && *str == *(str + 1))
+			str++;
+		specifier_struct->flags += parsing_bonus_flags_value(*str);
+	}
+	printf("specifier_struct->flags = %d\n",specifier_struct->flags);
+	//flag_overwrites
+}
+
+int	parsing(char *str, int va_arg)
+{
+	int			len;
+	t_specifier	specifier_struct;
+
+	len = 0;
+	specifier_struct.flags = 0;
+	while (str[++len])
+	{
+		if (ft_strchr("cspdiuxX%", str[len]))
+		{
+			specifier_struct.specifier = str[len];
+			if (len > 1)
+				parsing_bonus(str, len, &specifier_struct);
+			break ;
+		}
+	}
+	specifier_tree(str[len], va_arg);
+//	printf("value of specifier_struct.specifier = %c\n", specifier_struct.specifier);
+//	printf("value of specifier_struct.flags = %d\n", specifier_struct.flags);
+	return (0);
 }
 
 int	ft_printf(char *str, ...)
@@ -191,7 +263,10 @@ int	ft_printf(char *str, ...)
 	while (*str)
 	{
 		if (*str == '%')
-			str += find_specifier_position(str, "cspdiuxX%", va_arg(arg_list, int));
+		{
+			parsing(str, va_arg(arg_list, int));
+			str += jump_specifier(str);
+		}
 		else
 		{
 			ft_add_str_content(str, &strchain);	
@@ -211,7 +286,7 @@ int	main(void)
 	int	result;
 	int	real_result;
 
-	result = ft_printf("ceci %s est un %c petit %s test", test);
+	result = ft_printf("ceci %-    #sest un %cpetit %stest", test);
 	printf("\nresult final no segfault = %d\n", result);
 	real_result = printf("%s", test);
 	printf("\nreal printf result = %d\n", real_result);
