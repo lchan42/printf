@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/05 18:36:31 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/05 20:23:04 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,9 @@ void	struct_init(t_specifier *specifier_struct)
 	specifier_struct->content = NULL;
 }
 
-/*************************************
-*********chained list fonctions*******
-**************************************/
+/*****************************************************************
+*********chained list fonctions***********************************
+******************************************************************/
 t_list	*ft_lstlast(t_list *lst)
 {
 	if (!lst)
@@ -151,10 +151,9 @@ void	ft_add_str_content(char *str, t_list **strchain)
 	ft_lstadd_back(strchain, new_chain);
 }
 
-
-/*************************************
- ********specifier_tree***************
- *************************************/
+/********************************************************************
+ ********specifier_tree**********************************************
+ ********************************************************************/
 
 void	specifier_tree(char c, int va_arg)
 {
@@ -178,9 +177,9 @@ void	specifier_tree(char c, int va_arg)
 		printf("\nI found a percentage\n");
 }
 
-/*************************************
- * *******position du curseur*********
- * ***********************************/
+/*****************************************************************
+ * *******position du curseur*************************************
+ * ***************************************************************/
 int	jump_specifier (char *str)
 {
 	int	jump_len;
@@ -221,17 +220,17 @@ void	del_print_flags_identity(int flag_value)
 {
 	printf("      founed flag :");
 	if (flag_value & ALTERNATE_FORME)
-		printf(" #");
+		printf("'#' ");
 	if (flag_value & SPACE)
-		printf("' '");
+		printf("' ' ");
 	if (flag_value & PLUS_SIGN)
-		printf(" +");
+		printf("'+' ");
 	if (flag_value & LEFT_ADJUSTMENT)
-		printf(" -");
+		printf("'-' ");
 	if (flag_value & ZERO)
-		printf(" 0");
+		printf("'0' ");
 	if (flag_value & PRECISION)
-		printf(" .");
+		printf("'.' ");
 	printf("\n");
 }
 void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to be delete afterwards
@@ -248,30 +247,34 @@ void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to 
 
 /*********************************
  ************ parsing*************
- * ********************************/
+ *********************************/
 
-void	flag_overwrites(int	*flag_value)
+void	parsing_bonus_flag_overwrites(int *flag_value, char specifier)
 {
+	printf("flag_value before overwrite = %d\n", *flag_value);
 	if (*flag_value & SPACE && *flag_value & PLUS_SIGN)
 		*flag_value -= SPACE;
-	if (*flag_value & ZERO && * flag_value & LEFT_ADJUSTMENT)
+	if (*flag_value & ZERO && *flag_value & LEFT_ADJUSTMENT)
 		*flag_value -= ZERO;
+	if ((*flag_value & ALTERNATE_FORME) 
+			&& (specifier != 'x' || specifier != 'X'))
+		*flag_value -= ALTERNATE_FORME;
 }
 
 void	parsing_bonus_flag_value(char flag, int *flag_value)
 {
 	if (flag == '#')
-		*flag_value = *flag_value | ALTERNATE_FORME;
+		*flag_value |= ALTERNATE_FORME;
 	else if (flag == ' ')
-		*flag_value = *flag_value | SPACE;
+		*flag_value |= SPACE;
 	else if (flag == '+')
-		*flag_value = *flag_value | PLUS_SIGN;
+		*flag_value |= PLUS_SIGN;
 	else if (flag == '-')
-		*flag_value = *flag_value | LEFT_ADJUSTMENT;
+		*flag_value |= LEFT_ADJUSTMENT;
 	else if (flag == '0')
-		*flag_value = *flag_value | ZERO;
+		*flag_value |= ZERO;
 	else if (flag == '.')
-		*flag_value = *flag_value | PRECISION;
+		*flag_value |= PRECISION;
 }
 
 void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
@@ -283,7 +286,8 @@ void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 			str++;
 		parsing_bonus_flag_value(*str, &specifier_struct->flag_value);
 	}
-	flag_overwrites(&specifier_struct->flag_value);
+	parsing_bonus_flag_overwrites(&specifier_struct->flag_value, 
+		specifier_struct->specifier);
 }
 
 int	parsing(char *str, int va_arg)

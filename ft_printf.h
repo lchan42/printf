@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/05 18:36:36 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/05 20:23:06 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ typedef struct s_list
 typedef struct s_specifier
 {
 	char	specifier;
-	int		flag_value;//declaration en char ici cara pas besoin de 4 bytes
+	int		flag_value;
 	int		precision_digits;
 	char	*content;
 }	t_specifier;
