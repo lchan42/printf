@@ -27,7 +27,7 @@ int	main(void)
 	printf("age = %"); printf("the didgit before the specifier tells the informatiom\n");
 
 	printf("age = %#######-10.x", age); printf("we can have an unlimited numbers of specifier\n");
-
+	"%-10.15d"
 }
 /*****************************
 FLAGS THAT HAS TO BE BEFORE
@@ -39,4 +39,7 @@ FLAGS THAT HAS TO BE BEFORE
 %10 means i want 10 char in minimun. It is a miminum. it will still be printed out if the printf return is larger than that. 
 - left justify,
 0 replace space with 0s.
+
+
+
 */

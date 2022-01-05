@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/04 18:07:13 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/05 18:36:31 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,15 @@ char    *ft_strchr(const char *s, int c)
                 return ((char *) &s[i]);
         return (NULL);
 }
+
+void	struct_init(t_specifier *specifier_struct)
+{
+	specifier_struct->specifier = 0;
+	specifier_struct->flag_value = 0;
+	specifier_struct->precision_digits = 0;
+	specifier_struct->content = NULL;
+}
+
 /*************************************
 *********chained list fonctions*******
 **************************************/
@@ -187,45 +196,94 @@ int	jump_specifier (char *str)
 	return (0);
 }
 
+/*****************************************************************
+ ** print functions that has to be deleted afterwards*************
+ * ***************************************************************/
+
+void	del_print_initial_flags_identity(char *str)
+{
+	int	len;
+	char *tmp;
+
+	len = 0;
+	tmp = str;
+	while (++tmp)
+	{
+		if (ft_strchr(SPECIFIERS, *(tmp)))
+			break ;
+		len++;
+	}
+	write(1, "initial str flags = ", 20);
+	write(1, str + 1, len);
+}
+
+void	del_print_flags_identity(int flag_value)
+{
+	printf("      founed flag :");
+	if (flag_value & ALTERNATE_FORME)
+		printf(" #");
+	if (flag_value & SPACE)
+		printf("' '");
+	if (flag_value & PLUS_SIGN)
+		printf(" +");
+	if (flag_value & LEFT_ADJUSTMENT)
+		printf(" -");
+	if (flag_value & ZERO)
+		printf(" 0");
+	if (flag_value & PRECISION)
+		printf(" .");
+	printf("\n");
+}
+void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to be delete afterwards
+{
+	printf("***********SPECIFIER PARSED INFORMATION ************\n");
+	printf("value of specifier_struct.specifier = %c\n", specifier_struct->specifier);
+	printf("value of specifier_struct.flag_value = %d\n", specifier_struct->flag_value);
+	if (specifier_struct->flag_value > 0)
+		del_print_flags_identity(specifier_struct->flag_value);
+	printf("value of specifier_struct.precision_digits = %d\n", specifier_struct->precision_digits);
+	printf("value of specifier_struct.content = %s\n", specifier_struct->content);	
+	printf("****************************************************\n\n");
+}
+
 /*********************************
  ************ parsing*************
  * ********************************/
-/*
-int	flag_overwrites(int	flags)
+
+void	flag_overwrites(int	*flag_value)
 {
-	// cours du bittrix
+	if (*flag_value & SPACE && *flag_value & PLUS_SIGN)
+		*flag_value -= SPACE;
+	if (*flag_value & ZERO && * flag_value & LEFT_ADJUSTMENT)
+		*flag_value -= ZERO;
 }
-*/
-int		parsing_bonus_flags_value(char	flag)
+
+void	parsing_bonus_flag_value(char flag, int *flag_value)
 {
 	if (flag == '#')
-		return (ALTERNATE_FORME);
+		*flag_value = *flag_value | ALTERNATE_FORME;
 	else if (flag == ' ')
-		return (SPACE);
+		*flag_value = *flag_value | SPACE;
 	else if (flag == '+')
-		return (PLUS_SIGN);
+		*flag_value = *flag_value | PLUS_SIGN;
 	else if (flag == '-')
-		return (LEFT_ADJUSTMENT);
+		*flag_value = *flag_value | LEFT_ADJUSTMENT;
 	else if (flag == '0')
-		return (ZERO);
+		*flag_value = *flag_value | ZERO;
 	else if (flag == '.')
-		return (DOT);
-	return (0);
+		*flag_value = *flag_value | PRECISION;
 }
 
 void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 {
-	write (1, "initial str = ", 14);
-	write (1, str, len);
-	write (1, "\n", 1);
+	del_print_initial_flags_identity(str);
 	while (*(++str) != specifier_struct->specifier)
 	{
 		while ((!ft_isdigit(*str)) && *str == *(str + 1))
 			str++;
-		specifier_struct->flags += parsing_bonus_flags_value(*str);
+		parsing_bonus_flag_value(*str, &specifier_struct->flag_value);
 	}
-	printf("specifier_struct->flags = %d\n",specifier_struct->flags);
-	//flag_overwrites
+	flag_overwrites(&specifier_struct->flag_value);
 }
 
 int	parsing(char *str, int va_arg)
@@ -234,7 +292,7 @@ int	parsing(char *str, int va_arg)
 	t_specifier	specifier_struct;
 
 	len = 0;
-	specifier_struct.flags = 0;
+	struct_init(&specifier_struct);
 	while (str[++len])
 	{
 		if (ft_strchr("cspdiuxX%", str[len]))
@@ -246,8 +304,7 @@ int	parsing(char *str, int va_arg)
 		}
 	}
 	specifier_tree(str[len], va_arg);
-//	printf("value of specifier_struct.specifier = %c\n", specifier_struct.specifier);
-//	printf("value of specifier_struct.flags = %d\n", specifier_struct.flags);
+	del_print_t_specifier(&specifier_struct);
 	return (0);
 }
 
@@ -285,8 +342,8 @@ int	main(void)
 	char	test[] = "ceci est un petit test";
 	int	result;
 	int	real_result;
-
-	result = ft_printf("ceci %-    #sest un %cpetit %stest", test);
+	
+	result = ft_printf("ceci %- +   #.sest un %#cpetit % stest", test);
 	printf("\nresult final no segfault = %d\n", result);
 	real_result = printf("%s", test);
 	printf("\nreal printf result = %d\n", real_result);

@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/04 18:07:22 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/05 18:36:36 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@
 # include <stdio.h>
 # include <stdarg.h>
 
-/* j ai le droit ???????????
+
 #define SPECIFIERS "cspdiuxX%"
 #define FLAGS "# +-0."
-*/
+
 typedef struct s_list
 {
 	void			*content;
@@ -34,19 +34,20 @@ typedef struct s_list
 typedef struct s_specifier
 {
 	char	specifier;
-	int		flags;
+	int		flag_value;//declaration en char ici cara pas besoin de 4 bytes
 	int		precision_digits;
 	char	*content;
 }	t_specifier;
 
 enum e_flags
 {
-	ALTERNATE_FORME = 1,//only works with x, X put ox 
+	ALTERNATE_FORME = 1,//only works with x, X put ox
 	SPACE = 2,// is overwritten by PLUS_SIGN
 	PLUS_SIGN = 4, // overrights SPACE
-	LEFT_ADJUSTMENT = 8, //overrights ZERO0
-	ZERO = 16,//IS OVERWRITTEN BY LEFT_ADJUdSTMENT
-	DOT = 32, // gives the lengh to print if is string, else if number or hexa the dot is treated as ZERO
+	LEFT_ADJUSTMENT = 8, //overrights ZERO
+	ZERO = 16,//IS OVERWRITTEN BY LEFT_ADJUDSTMENT
+	PRECISION = 32, // gives the lengh to print if is string, else if number or hexa the dot is treated as ZERO
+	// if -10 < .15 le 10 saute. 
 };
 
 //chained list
