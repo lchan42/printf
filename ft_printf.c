@@ -181,22 +181,106 @@ void	ft_add_str_content(char *str, t_list **strchain)
  ********specifier_tree**********************************************
  ********************************************************************/
 
-void	ft_case_c(int va_arg, char **t_specifier_content)
+void	ft_case_c(int argument, char **t_specifier_content)
 {
 	char	c;
 
-	c = (char) va_arg;
+	c = (char) argument;
 	*t_specifier_content = ft_strndup(&c, 1); //this malloc is not freed
 }
 
-void	ft_case_s(char* va_arg, char **t_specifier_content)
+void	ft_case_s(char* argument, char **t_specifier_content)
 {
-	*t_specifier_content = ft_strdup(va_arg); //this malloc is not freed
+	*t_specifier_content = ft_strdup(argument); //this malloc is not freed
 }
 
-void	ft_case_p(unsigned long long int va_arg, char **t_specifier_content)
+int	ft_convertbase_size(unsigned long long int argument, int base)
 {
 	int	len;
+	
+	len = 0;
+	while(argument)
+	{
+		argument /= base;
+		len ++;
+	}
+	return (len);
+}
+/*
+char	*ft_itoa_hexa(int len, unsigned long long int argument)
+{
+	char	*content;
+	int		i;
+
+	content = malloc((len + 1) * sizeof(char));
+	i = -1;
+	while (++i < len)
+	{
+		content(i) = argument / 16
+		 % 16
+	}
+	content[len] = '\0';
+	return (content);
+}
+
+char	*ft_itoa(int argument)
+{
+	int		tmp;
+	int		len;
+	char	*itoa;
+
+	tmp = argument;
+	len = 0;
+	while (tmp)
+	{
+		tmp /= 10;
+		len++;
+	}
+	itoa = malloc((len + 1) * sizeof(char));
+	while 
+}
+
+void	ft_putnbr(int n)
+{
+	long int nb;
+
+	nb = n;
+	if (nb < n)
+		nb = -nb
+	if (nb > 10)
+		ft_putnbr(nb / 10);
+	ft_putchar(nb % 10 + '0');
+}
+
+void	ft_putnbr(int n)
+{
+	long int	nb;
+
+	nb = n;
+	if (nb < 0)
+	{
+		write (1, "-", 1);
+		nb = -nb;
+	}
+	if (nb >= 16)
+		ft_putnbr_fd(nb / 16);
+	nb = nb % 16 + '0';
+	write (1, &nb, 1);
+}*/
+
+void	ft_case_p(unsigned long long int argument, char **t_specifier_content)
+{
+	int	len;
+	int	i;
+
+	len = ft_convertbase_size(argument, 16);
+	i = 0;
+	printf("unsigned long long int version = %llu\n", argument);
+	printf("argument size for malloc = %d\n", len);
+//	*t_specifier_content = ft_itoa_hexa(len, argument); //this malloc is not freed
+}
+
+/*	int	len;
 
 	len = 0;
 	while (va_arg > 0)
@@ -204,7 +288,7 @@ void	ft_case_p(unsigned long long int va_arg, char **t_specifier_content)
 		va_arg /= 16;
 		len++;
 	}
-}
+}*/
 
 void	specifier_tree(char c, va_list arg_list, char **t_specifier_content)
 {
@@ -417,7 +501,7 @@ int	main(void)
 	int	result;
 	int	real_result;
 	
-	result = ft_printf("ceci %#10.15cest un %#000000000000150.000000160xpetit % 956stest", 'a', test);
+	result = ft_printf("ceci %#10.15cest un %#000000000000150.000000160ppetit % 956stest", 'a', test, test);
 	printf("\nresult final no segfault = %d\n", result);
 	real_result = printf("ceci %sest un petit test", test);
 	printf("\nreal printf result = %d\n", real_result);
