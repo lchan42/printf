@@ -26,8 +26,7 @@ int	main(void)
 	printf("age = %010d", age); printf("the didgit before the specifier tells the informatiom\n");
 	printf("age = %"); printf("the didgit before the specifier tells the informatiom\n");
 
-	printf("age = %#######-10.x", age); printf("we can have an unlimited numbers of specifier\n");
-	"%-10.15d"
+	printf("age = %-# +.04d", age); printf("we cant have an unlimited numbers of different  specifier\n");
 }
 /*****************************
 FLAGS THAT HAS TO BE BEFORE

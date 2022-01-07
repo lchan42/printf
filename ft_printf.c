@@ -32,6 +32,13 @@ int     ft_isdigit(int c)
         return (0);
 }
 
+int     ft_isnonull_digit(int c)
+{
+        if (c >= '1' && c <= '9')
+                return (1);
+        return (0);
+}
+
 char    *ft_strchr(const char *s, int c)
 {
         size_t  i;
@@ -52,7 +59,8 @@ void	struct_init(t_specifier *specifier_struct)
 {
 	specifier_struct->specifier = 0;
 	specifier_struct->flag_value = 0;
-	specifier_struct->precision_digits = 0;
+	specifier_struct->digit_width = 0;
+	specifier_struct->digit_precision = 0;
 	specifier_struct->content = NULL;
 }
 
@@ -249,9 +257,13 @@ void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to 
  ************ parsing*************
  *********************************/
 
+void	parsing_bonus_digit(char *str, t_specifier *specifier_struct)
+{
+	
+}
 void	parsing_bonus_flag_overwrites(int *flag_value, char specifier)
 {
-	printf("flag_value before overwrite = %d\n", *flag_value);
+	printf("\nflag_value before overwrite = %d\n", *flag_value);
 	if (*flag_value & SPACE && *flag_value & PLUS_SIGN)
 		*flag_value -= SPACE;
 	if (*flag_value & ZERO && *flag_value & LEFT_ADJUSTMENT)
@@ -282,9 +294,10 @@ void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 	del_print_initial_flags_identity(str);
 	while (*(++str) != specifier_struct->specifier)
 	{
-		while ((!ft_isdigit(*str)) && *str == *(str + 1))
-			str++;
-		parsing_bonus_flag_value(*str, &specifier_struct->flag_value);
+		if (ft_strchr(FLAGS, *str))
+			parsing_bonus_flag_value(*str, &specifier_struct->flag_value);
+		else if (ft_isnonull_digit(*str)
+			parsing_bonus_digit(str - 1, &specifier_struct);
 	}
 	parsing_bonus_flag_overwrites(&specifier_struct->flag_value, 
 		specifier_struct->specifier);

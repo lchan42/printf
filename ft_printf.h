@@ -35,7 +35,8 @@ typedef struct s_specifier
 {
 	char	specifier;
 	int		flag_value;
-	int		precision_digits;
+	int		digit_width;
+	int		digit_precision;
 	char	*content;
 }	t_specifier;
 
@@ -46,8 +47,10 @@ enum e_flags
 	PLUS_SIGN = 4, // overrights SPACE
 	LEFT_ADJUSTMENT = 8, //overrights ZERO
 	ZERO = 16,//IS OVERWRITTEN BY LEFT_ADJUDSTMENT
-	PRECISION = 32, // gives the lengh to print if is string, else if number or hexa the dot is treated as ZERO
+	PRECISION = 32, // case string :gives the number of byte to print., else if number or hexa the dot is treated as ZERO
+	//seens that no flag can appear after precisions. 
 	// if -10 < .15 le 10 saute. 
+	// WARNING a leading 0 is a flag but embedded zero is part of a filed. 
 };
 
 //chained list
