@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/07 16:04:00 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/07 20:45:34 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 
 #define SPECIFIERS "cspdiuxX%"
 #define FLAGS "# +-0."
+#define HEXABASE "0123456789abcdef"
 
 typedef struct s_list
 {
@@ -65,8 +66,6 @@ void    free_list(t_list *alst);
 char    *ft_strndup(const char *s1, int count);
 void    ft_add_str_content(char *str, t_list **strchain);
 char    *ft_strchr(const char *s, int c);
-void    specifier_tree(char c, int va_arg);
-int     parsing(char *str, int va_arg);
 int     ft_printf(char *str, ...);
 
 #endif 

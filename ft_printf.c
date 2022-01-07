@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/07 16:03:58 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/07 20:45:43 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,6 @@ void	free_list(t_list *alst)
 	free(tmp);
 }
 
-
 char	*ft_strndup(const char *s1, int	count)
 {
 	char	*dup;
@@ -147,6 +146,25 @@ char	*ft_strndup(const char *s1, int	count)
 	return (result);
 }
 
+char    *ft_strdup(const char *s1)
+{
+        size_t  len;
+        char    *dup;
+
+        len = ft_strlen(s1);
+        dup = (char *)malloc((len + 1) * sizeof(char));
+        if (!dup)
+                return (0);
+        while (*s1 != '\0')
+        {
+                *dup = *s1;
+                s1++;
+                dup++;
+        }
+        *dup = '\0';
+        return (dup - len);
+}
+
 void	ft_add_str_content(char *str, t_list **strchain)
 {
 	int		count;
@@ -163,25 +181,50 @@ void	ft_add_str_content(char *str, t_list **strchain)
  ********specifier_tree**********************************************
  ********************************************************************/
 
-void	specifier_tree(char c, int va_arg)
+void	ft_case_c(int va_arg, char **t_specifier_content)
+{
+	char	c;
+
+	c = (char) va_arg;
+	*t_specifier_content = ft_strndup(&c, 1); //this malloc is not freed
+}
+
+void	ft_case_s(char* va_arg, char **t_specifier_content)
+{
+	*t_specifier_content = ft_strdup(va_arg); //this malloc is not freed
+}
+
+void	ft_case_p(unsigned long long int va_arg, char **t_specifier_content)
+{
+	int	len;
+
+	len = 0;
+	while (va_arg > 0)
+	{
+		va_arg /= 16;
+		len++;
+	}
+}
+
+void	specifier_tree(char c, va_list arg_list, char **t_specifier_content)
 {
 	if (c == 'c')
-		printf("\nI found a c\n");
+		ft_case_c(va_arg(arg_list, int), t_specifier_content);
 	else if (c == 's')
-		printf("\nI found a s\n");
+		ft_case_s(va_arg(arg_list, char *), t_specifier_content);
 	else if (c == 'p')
-		printf("\nI found a p\n");
+		ft_case_p(va_arg(arg_list, unsigned long long int), t_specifier_content);
 	else if (c == 'd')
-		printf("\nI found a d\n");
+		printf("\nI found a d\n"); //int
 	else if (c == 'i')
-		printf("\nI found a i\n");
+		printf("\nI found a i\n"); //int
 	else if (c == 'u')
-		printf("\nI found a u\n");
+		printf("\nI found a u\n"); //unsigned int
 	else if (c == 'x')
-		printf("\nI found a x\n");
+		printf("\nI found a x\n"); //int
 	else if (c == 'X')
-		printf("\nI found a X\n");
-	else if (c == '%')
+		printf("\nI found a X\n"); //int
+	else if (c == '%')//no va_arg in this case
 		printf("\nI found a percentage\n");
 }
 
@@ -317,7 +360,7 @@ void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 		specifier_struct->specifier);
 }
 
-int	parsing(char *str, int va_arg)
+int	parsing(char *str, va_list arg_list)
 {
 	int			len;
 	t_specifier	specifier_struct;
@@ -334,7 +377,7 @@ int	parsing(char *str, int va_arg)
 			break ;
 		}
 	}
-	specifier_tree(str[len], va_arg);
+	specifier_tree(specifier_struct.specifier, arg_list, &specifier_struct.content);
 	del_print_t_specifier(&specifier_struct);
 	return (0);
 }
@@ -352,7 +395,7 @@ int	ft_printf(char *str, ...)
 	{
 		if (*str == '%')
 		{
-			parsing(str, va_arg(arg_list, int));
+			parsing(str, arg_list);
 			str += jump_specifier(str);
 		}
 		else
@@ -370,12 +413,12 @@ int	ft_printf(char *str, ...)
 
 int	main(void)
 {
-	char	test[] = "ceci est un petit test";
+	char	test[] = "[test dans un test]";
 	int	result;
 	int	real_result;
 	
-	result = ft_printf("ceci %#10.15sest un %#000000000000150.000000160xpetit % 956stest", test);
+	result = ft_printf("ceci %#10.15cest un %#000000000000150.000000160xpetit % 956stest", 'a', test);
 	printf("\nresult final no segfault = %d\n", result);
-	real_result = printf("%s", test);
+	real_result = printf("ceci %sest un petit test", test);
 	printf("\nreal printf result = %d\n", real_result);
 }
