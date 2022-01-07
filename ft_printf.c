@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/05 20:23:04 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/07 16:03:58 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,7 +204,7 @@ int	jump_specifier (char *str)
 }
 
 /*****************************************************************
- ** print functions that has to be deleted afterwards*************
+ ** print functions (has to be deleted afterwards)****************
  * ***************************************************************/
 
 void	del_print_initial_flags_identity(char *str)
@@ -226,19 +226,19 @@ void	del_print_initial_flags_identity(char *str)
 
 void	del_print_flags_identity(int flag_value)
 {
-	printf("      founed flag :");
+	printf("   -->founed flag list :");
 	if (flag_value & ALTERNATE_FORME)
-		printf("'#' ");
+		printf("[#]");
 	if (flag_value & SPACE)
-		printf("' ' ");
+		printf("[ ]");
 	if (flag_value & PLUS_SIGN)
-		printf("'+' ");
+		printf("[+]");
 	if (flag_value & LEFT_ADJUSTMENT)
-		printf("'-' ");
+		printf("[-]");
 	if (flag_value & ZERO)
-		printf("'0' ");
+		printf("[0]");
 	if (flag_value & PRECISION)
-		printf("'.' ");
+		printf("[.]");
 	printf("\n");
 }
 void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to be delete afterwards
@@ -248,7 +248,8 @@ void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to 
 	printf("value of specifier_struct.flag_value = %d\n", specifier_struct->flag_value);
 	if (specifier_struct->flag_value > 0)
 		del_print_flags_identity(specifier_struct->flag_value);
-	printf("value of specifier_struct.precision_digits = %d\n", specifier_struct->precision_digits);
+	printf("value of specifier_struct.digit_width = %d\n", specifier_struct->digit_width);
+	printf("value of specifier_struct.digit_precision = %d\n", specifier_struct->digit_precision);
 	printf("value of specifier_struct.content = %s\n", specifier_struct->content);	
 	printf("****************************************************\n\n");
 }
@@ -257,9 +258,20 @@ void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to 
  ************ parsing*************
  *********************************/
 
-void	parsing_bonus_digit(char *str, t_specifier *specifier_struct)
+char	*parsing_bonus_digit(char *str, t_specifier *specifier_struct)
 {
-	
+	int		result;
+	char	flag;
+
+	result = 0;
+	flag = *str;
+	while (ft_isdigit(*(++str)))
+		result = result * 10 + (*str - '0') % 10;
+	if (flag  == '.')
+		specifier_struct->digit_precision = result;
+	else
+		specifier_struct->digit_width = result;
+	return (str - 1);
 }
 void	parsing_bonus_flag_overwrites(int *flag_value, char specifier)
 {
@@ -296,8 +308,10 @@ void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 	{
 		if (ft_strchr(FLAGS, *str))
 			parsing_bonus_flag_value(*str, &specifier_struct->flag_value);
-		else if (ft_isnonull_digit(*str)
-			parsing_bonus_digit(str - 1, &specifier_struct);
+		if (*str == '.' && ft_isdigit(*(str + 1)))	
+			str = parsing_bonus_digit(str, specifier_struct);
+		else if (ft_isnonull_digit(*str))
+			str = parsing_bonus_digit(str - 1, specifier_struct);
 	}
 	parsing_bonus_flag_overwrites(&specifier_struct->flag_value, 
 		specifier_struct->specifier);
@@ -312,7 +326,7 @@ int	parsing(char *str, int va_arg)
 	struct_init(&specifier_struct);
 	while (str[++len])
 	{
-		if (ft_strchr("cspdiuxX%", str[len]))
+		if (ft_strchr(SPECIFIERS, str[len]))
 		{
 			specifier_struct.specifier = str[len];
 			if (len > 1)
@@ -360,7 +374,7 @@ int	main(void)
 	int	result;
 	int	real_result;
 	
-	result = ft_printf("ceci %- +   #.sest un %#cpetit % stest", test);
+	result = ft_printf("ceci %#10.15sest un %#000000000000150.000000160xpetit % 956stest", test);
 	printf("\nresult final no segfault = %d\n", result);
 	real_result = printf("%s", test);
 	printf("\nreal printf result = %d\n", real_result);

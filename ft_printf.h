@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/05 20:23:06 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/07 16:04:00 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct s_specifier
 	char	specifier;
 	int		flag_value;
 	int		digit_width;
-	int		digit_precision;
+	int		digit_precision; // real printf can manage numbers that are over int;
 	char	*content;
 }	t_specifier;
 
