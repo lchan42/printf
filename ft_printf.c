@@ -220,13 +220,13 @@ char	*ft_itoa_hexa(int len, unsigned long long int argument)
 	{
 		tmp = argument;
 		tmp2 = i;
-		while (tmp2 < len)
+		while (tmp2 < len - 1)
 		{
 			tmp /= 16;
 			tmp2++;
 		}
 		content[i] = HEXABASE[tmp % 16];
-		printf("tmp = %llu /HEXABASE[%llu] = %c\n", tmp, tmp % 16, HEXABASE[tmp2]);
+		printf("tmp = %llu /HEXABASE[%llu] = %c\n", tmp, tmp % 16, HEXABASE[tmp % 16]);
 	}
 	content[len] = '\0';
 	printf("content in hexa = %s\n", content);
