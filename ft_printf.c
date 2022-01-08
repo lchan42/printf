@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/08 16:21:38 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/08 19:29:58 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,19 +210,20 @@ int	ft_convertbase_size(unsigned long long int argument, int base)
 char	*ft_printf_itoa_hexa(int len, unsigned long long int argument, char specifier)
 {
 	char	*content;
-	int		i;
+	int		added_space;
 
+	added_space = 0;
 	if (!argument)
 		len++;
 	if (specifier == 'p')
-		len += 2;
-	content = malloc((len + 1) * sizeof(char));
+		added_space = 2;
+	content = (char *) malloc((len + added_space + 1) * sizeof(char));
 	if (!content)
 		return (NULL);
 	content[len] = '\0';
-	while (--len > 1)
+	while (--len + added_space >= added_space)
 	{
-		content[len] = HEXABASE[argument % 16];
+		content[len + added_space] = HEXABASE[argument % 16];
 		argument /= 16;
 //		printf("argument = %llu /HEXABASE[%llu] = %c\n", argument, argument % 16, HEXABASE[argument % 16]);
 	}
@@ -234,85 +235,109 @@ char	*ft_printf_itoa_hexa(int len, unsigned long long int argument, char specifi
 //	printf("content in hexa = %s\n", content);
 	return (content);
 }
-/*
-char	*ft_itoa(int argument)
-{
-	int		tmp;
-	int		len;
-	char	*itoa;
-
-	tmp = argument;
-	len = 0;
-	while (tmp)
-	{
-		tmp /= 10;
-		len++;
-	}
-	itoa = malloc((len + 1) * sizeof(char));
-	while 
-}
-
-void	ft_putnbr(int n)
-{
-	long int nb;
-
-	nb = n;
-	if (nb < n)
-		nb = -nb
-	if (nb > 10)
-		ft_putnbr(nb / 10);
-	ft_putchar(nb % 10 + '0');
-}
-
-void	ft_putnbr(int n)
-{
-	long int	nb;
-
-	nb = n;
-	if (nb < 0)
-	{
-		write (1, "-", 1);
-		nb = -nb;
-	}
-	if (nb >= 16)
-		ft_putnbr_fd(nb / 16);
-	nb = nb % 16 + '0';
-	write (1, &nb, 1);
-}*/
 
 void	ft_case_p(unsigned long long int argument, char **t_specifier_content)
 {
 	int	len;
-	int	i;
 
 	len = ft_convertbase_size(argument, 16);
-	i = 0;
-	printf("unsigned long long int version = %llu\n", argument);
-	printf("argument size for malloc = %d\n", len);
-	*t_specifier_content = ft_printf_itoa_hexa(len, argument, 'p'); //this malloc is not freed
+//	printf("unsigned long long int version = %llu\n", argument);
+//	printf("argument size for malloc = %d\n", len);
+	*t_specifier_content = ft_printf_itoa_hexa(len, argument, 'p');//this malloc is not freed
 }
 
-
-void	specifier_tree(char c, va_list arg_list, char **t_specifier_content)
+void	ft_case_d(int argument, char **t_specifier_content)
 {
-	if (c == 'c')
+	int			len;
+	long int	nb;
+
+	nb = argument;
+	if (nb > 0)
+		len = ft_convertbase_size(nb, 10);
+	else
+	{
+		nb = - nb;
+		len = ft_convertbase_size(nb, 10);
+		len++;
+	}
+	*t_specifier_content = (char *) malloc((len + 1 ) * sizeof(char));//this malloc is not freed
+	if (!*t_specifier_content)
+		return ;
+	(*t_specifier_content)[len] = '\0';
+	while (--len >= 0)
+	{
+		(*t_specifier_content)[len] = nb % 10 + '0';
+		nb /= 10;
+	}
+	if (argument < 0)
+		(*t_specifier_content)[0] = '-';
+}
+void	ft_case_u(unsigned int argument, char **t_specifier_content)
+{
+	int			len;
+
+	len = ft_convertbase_size(argument, 10);
+	if (!argument)
+		len = 1;
+	*t_specifier_content = (char *) malloc((len + 1 ) * sizeof(char));//this malloc is not freed
+	if (!*t_specifier_content)
+		return ;
+	(*t_specifier_content)[len] = '\0';
+	while (--len >= 0)
+	{
+		(*t_specifier_content)[len] = argument % 10 + '0';
+		argument /= 10;
+	}
+}
+
+void	ft_case_x(unsigned int argument, char **t_specifier_content)
+{
+	int len;
+
+	len = ft_convertbase_size(argument, 16);
+	*t_specifier_content = ft_printf_itoa_hexa(len, argument, 'x'); //this malloc is not freed
+}
+
+void	ft_case_X(unsigned  argument, char **t_specifier_content)
+{
+	int len;
+	int	i;
+
+	i = 0;
+	len = ft_convertbase_size(argument, 16);
+	*t_specifier_content = ft_printf_itoa_hexa(len, argument, 'x'); //this malloc is not freed
+	while ((*t_specifier_content)[i])
+	{
+		if ((*t_specifier_content)[i] >= 97 && (*t_specifier_content)[i] <= 122)
+			(*t_specifier_content)[i] -= 32;
+		i++;
+	}
+}
+
+void	ft_case_percent(char **t_specifier_content)
+{	
+	write(1, "%\n", 2);
+}
+void	specifier_tree(char specifier, va_list arg_list, char **t_specifier_content)
+{
+	if (specifier == 'c')
 		ft_case_c(va_arg(arg_list, int), t_specifier_content);
-	else if (c == 's')
+	else if (specifier == 's')
 		ft_case_s(va_arg(arg_list, char *), t_specifier_content);
-	else if (c == 'p')
+	else if (specifier == 'p')
 		ft_case_p((unsigned long long int)va_arg(arg_list, void *), t_specifier_content);
-	else if (c == 'd')
-		printf("\nI found a d\n"); //int
-	else if (c == 'i')
-		printf("\nI found a i\n"); //int
-	else if (c == 'u')
-		printf("\nI found a u\n"); //unsigned int
-	else if (c == 'x')
-		printf("\nI found a x\n"); //int
-	else if (c == 'X')
-		printf("\nI found a X\n"); //int
-	else if (c == '%')//no va_arg in this case
-		printf("\nI found a percentage\n");
+	else if (specifier == 'd')
+		ft_case_d(va_arg(arg_list, int), t_specifier_content);
+	else if (specifier == 'i')
+		ft_case_d(va_arg(arg_list, int), t_specifier_content);
+	else if (specifier == 'u')
+		ft_case_u(va_arg(arg_list, unsigned int), t_specifier_content);
+	else if (specifier == 'x')
+		ft_case_x(va_arg(arg_list, unsigned int), t_specifier_content);
+	else if (specifier == 'X')
+		ft_case_X(va_arg(arg_list, unsigned int), t_specifier_content);
+	else if (specifier == '%')//no va_arg in this case
+		ft_case_percent(t_specifier_content);
 }
 
 /*****************************************************************
@@ -503,13 +528,14 @@ int	ft_printf(char *str, ...)
 int	main(void)
 {
 	char	test[] = "[test dans un test]";
-	int 	nb = 1;
+	int 	nb = -2147483648;
+	int		nb2 = 2147483647;
 	char	*null = NULL;
 	int		result;
 	int		real_result;
 	
-	result = ft_printf("ceci %#10.15cest un %#+000000000000150.000000160ppetit % 956ptest", 'a', &nb, null);
+	result = ft_printf("%c, %s, %d, %p, %x %X", 'a', "[une phrase de test]", nb, null, nb2, nb2);
 	printf("\nresult final no segfault = %d\n", result);
-	real_result = printf("ceci %sest un %ppetit %ptest %x", test, &nb, null, -2147483648);
+	real_result = printf("%c, %s, %d, %p, %x %X", 'a', "[une phrase de test]", nb, null, nb2, nb2);
 	printf("\nreal printf result = %d\n", real_result);
 }
