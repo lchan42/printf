@@ -206,23 +206,34 @@ int	ft_convertbase_size(unsigned long long int argument, int base)
 	}
 	return (len);
 }
-/*
+
 char	*ft_itoa_hexa(int len, unsigned long long int argument)
 {
-	char	*content;
-	int		i;
+	char						*content;
+	int							i;
+	unsigned long long int		tmp;
+	int							tmp2;
 
 	content = malloc((len + 1) * sizeof(char));
 	i = -1;
 	while (++i < len)
 	{
-		content(i) = argument / 16
-		 % 16
+		tmp = argument;
+		tmp2 = i;
+		while (tmp2 < len)
+		{
+			tmp /= 16;
+			tmp2++;
+		}
+		content[i] = HEXABASE[tmp % 16];
+		printf("tmp = %llu /HEXABASE[%llu] = %c\n", tmp, tmp % 16, HEXABASE[tmp2]);
 	}
 	content[len] = '\0';
+	printf("content in hexa = %s\n", content);
 	return (content);
 }
-
+	
+/*
 char	*ft_itoa(int argument)
 {
 	int		tmp;
@@ -277,7 +288,7 @@ void	ft_case_p(unsigned long long int argument, char **t_specifier_content)
 	i = 0;
 	printf("unsigned long long int version = %llu\n", argument);
 	printf("argument size for malloc = %d\n", len);
-//	*t_specifier_content = ft_itoa_hexa(len, argument); //this malloc is not freed
+	*t_specifier_content = ft_itoa_hexa(len, argument); //this malloc is not freed
 }
 
 /*	int	len;
