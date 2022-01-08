@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/07 20:45:34 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/08 16:21:40 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ enum e_flags
 {
 	ALTERNATE_FORME = 1,//only works with x, X put ox
 	SPACE = 2,// is overwritten by PLUS_SIGN
-	PLUS_SIGN = 4, // overrights SPACE
+	PLUS_SIGN = 4, // overrights SPACE // = undefined behavior with p
 	LEFT_ADJUSTMENT = 8, //overrights ZERO
 	ZERO = 16,//IS OVERWRITTEN BY LEFT_ADJUDSTMENT
 	PRECISION = 32, // case string :gives the number of byte to print., else if number or hexa the dot is treated as ZERO
