@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/10 16:09:30 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/10 21:22:00 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,8 @@ t_list	*ft_lstnew(void *content, int count)
 	if (!tmp)
 		return (NULL);
 	tmp->content = content;
+	if (!tmp->content)
+		count = 1;
 	tmp->result = count;
 	tmp->next = NULL;
 	return (tmp);
@@ -107,7 +109,10 @@ int	ft_print_list_result(t_list *alst)
 	result = 0;
 	while (alst)
 	{
-		write(1, alst->content, alst->result);
+		if (!alst->content)
+			write(1, "\0", 1);
+		else
+			write(1, alst->content, alst->result);
 		result = result + alst->result; 
 		alst = alst->next;
 	}
@@ -172,10 +177,26 @@ void	ft_add_str_content(char *str, t_list **strchain)
 	t_list	*new_chain;
 
 	count = 0;
-	while (str[count]  && str[count] != '%')
+	while (str[count] && str[count] != '%')
 		count++;	
 	new_chain = ft_lstnew(ft_strndup(str, count), count);	
 	ft_lstadd_back(strchain, new_chain);
+}
+
+void	ft_add_specifier_content(t_list **strchain, char **specifier_struct_content)
+{
+	int		count;
+	t_list	*new_chain;
+
+	count = 0;
+	if (!specifier_struct_content)
+		return ;
+
+	while (*specifier_struct_content && (*specifier_struct_content)[count])
+		count++;
+	new_chain = ft_lstnew(*specifier_struct_content, count);
+	ft_lstadd_back(strchain, new_chain);
+//	del_print_content_address(strchain, specifier_struct_content);//have to delete this line
 }
 
 /********************************************************************
@@ -186,13 +207,21 @@ void	ft_case_c(int argument, char **t_specifier_content)
 {
 	char	c;
 
-	c = (char) argument;
-	*t_specifier_content = ft_strndup(&c, 1); //this malloc is not freed
+	if (!argument)
+		*t_specifier_content = NULL;
+	else
+	{
+		c = (char) argument;
+		*t_specifier_content = ft_strndup(&c, 1); //this malloc is not freed
+	}
 }
 
-void	ft_case_s(char* argument, char **t_specifier_content)
+void	ft_case_s(char *argument, char **t_specifier_content)
 {
-	*t_specifier_content = ft_strdup(argument); //this malloc is not freed
+	if (!argument)
+		*t_specifier_content = ft_strdup("(null)");
+	else
+		*t_specifier_content = ft_strdup(argument); //this malloc is not freed
 }
 
 int	ft_convertbase_size(unsigned long long int argument, int base)
@@ -221,7 +250,7 @@ char	*ft_printf_itoa_hexa(int len, unsigned long long int argument, char specifi
 	content = (char *) malloc((len + added_bytes + 1) * sizeof(char));
 	if (!content)
 		return (NULL);
-	content[len] = '\0';
+	content[len + added_bytes] = '\0';
 	while (--len + added_bytes >= added_bytes)
 	{
 		content[len + added_bytes] = HEXABASE[argument % 16];
@@ -273,6 +302,7 @@ void	ft_case_d(int argument, char **t_specifier_content)
 	if (argument < 0)
 		(*t_specifier_content)[0] = '-';
 }
+
 void	ft_case_u(unsigned int argument, char **t_specifier_content)
 {
 	int			len;
@@ -291,26 +321,32 @@ void	ft_case_u(unsigned int argument, char **t_specifier_content)
 	}
 }
 
-void	ft_case_x(unsigned int argument, char **t_specifier_content)
+void	ft_case_x(unsigned int argument, t_specifier *t_specifier)
 {
 	int len;
 
 	len = ft_convertbase_size(argument, 16);
-	*t_specifier_content = ft_printf_itoa_hexa(len, argument, 'x'); //this malloc is not freed
+	if (argument && (t_specifier->flag_value & ALTERNATE_FORME))
+		t_specifier->content = ft_printf_itoa_hexa(len, argument, 'p'); //this malloc is not freed
+	else
+		t_specifier->content = ft_printf_itoa_hexa(len, argument, 'x'); //this malloc is not freed
 }
 
-void	ft_case_X(unsigned  argument, char **t_specifier_content)
+void	ft_case_X(unsigned argument, t_specifier *t_specifier)
 {
 	int len;
 	int	i;
 
 	i = 0;
 	len = ft_convertbase_size(argument, 16);
-	*t_specifier_content = ft_printf_itoa_hexa(len, argument, 'x'); //this malloc is not freed
-	while ((*t_specifier_content)[i])
+	if (argument && (t_specifier->flag_value & ALTERNATE_FORME))
+		t_specifier->content = ft_printf_itoa_hexa(len, argument, 'p'); //this malloc is not freed
+	else
+		t_specifier->content = ft_printf_itoa_hexa(len, argument, 'x'); //this malloc is not freed
+	while ((t_specifier->content)[i])
 	{
-		if ((*t_specifier_content)[i] >= 97 && (*t_specifier_content)[i] <= 122)
-			(*t_specifier_content)[i] -= 32;
+		if ((t_specifier->content)[i] >= 97 && (t_specifier->content)[i] <= 122)
+			(t_specifier->content)[i] -= 32;
 		i++;
 	}
 }
@@ -320,26 +356,26 @@ void	ft_case_percent(char **t_specifier_content)
 	*t_specifier_content = ft_strdup("%");//this malloc is not freed
 }
 
-void	specifier_tree(char specifier, va_list arg_list, char **t_specifier_content)
+void	specifier_tree(char specifier, va_list arg_list, t_specifier *specifier_struct)
 {
 	if (specifier == 'c')
-		ft_case_c(va_arg(arg_list, int), t_specifier_content);
+		ft_case_c(va_arg(arg_list, int), &specifier_struct->content);
 	else if (specifier == 's')
-		ft_case_s(va_arg(arg_list, char *), t_specifier_content);
+		ft_case_s(va_arg(arg_list, char *), &specifier_struct->content);
 	else if (specifier == 'p')
-		ft_case_p((unsigned long long int)va_arg(arg_list, void *), t_specifier_content);
+		ft_case_p((unsigned long long int)va_arg(arg_list, void *), &specifier_struct->content);
 	else if (specifier == 'd')
-		ft_case_d(va_arg(arg_list, int), t_specifier_content);
+		ft_case_d(va_arg(arg_list, int), &specifier_struct->content);
 	else if (specifier == 'i')
-		ft_case_d(va_arg(arg_list, int), t_specifier_content);
+		ft_case_d(va_arg(arg_list, int), &specifier_struct->content);
 	else if (specifier == 'u')
-		ft_case_u(va_arg(arg_list, unsigned int), t_specifier_content);
+		ft_case_u(va_arg(arg_list, unsigned int), &specifier_struct->content);
 	else if (specifier == 'x')
-		ft_case_x(va_arg(arg_list, unsigned int), t_specifier_content);
+		ft_case_x(va_arg(arg_list, unsigned int), specifier_struct);
 	else if (specifier == 'X')
-		ft_case_X(va_arg(arg_list, unsigned int), t_specifier_content);
+		ft_case_X(va_arg(arg_list, unsigned int), specifier_struct);
 	else if (specifier == '%')//no va_arg in this case??
-		ft_case_percent(t_specifier_content);
+		ft_case_percent(&specifier_struct->content);
 }
 
 /*****************************************************************
@@ -411,6 +447,16 @@ void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to 
 	printf("****************************************************\n\n");
 }
 
+void	del_print_content_address(t_list **strchain, char **specifier_struct_content)
+{
+	t_list *tmp;
+
+	tmp = *strchain;
+	while (tmp->next)
+		tmp = tmp->next;
+	printf("t_list strchain->content = %p\n", tmp->content);
+	printf("s_specifier->content     = %p\n", *specifier_struct_content);
+}
 /*********************************
  ************ parsing*************
  *********************************/
@@ -430,15 +476,16 @@ char	*parsing_bonus_digit(char *str, t_specifier *specifier_struct)
 		specifier_struct->digit_width = result;
 	return (str - 1);
 }
+
 void	parsing_bonus_flag_overwrites(int *flag_value, char specifier)
 {
-	printf("\nflag_value before overwrite = %d\n", *flag_value);
+//	printf("\nflag_value before overwrite = %d\n", *flag_value);//have to delete this line
 	if (*flag_value & SPACE && *flag_value & PLUS_SIGN)
 		*flag_value -= SPACE;
 	if (*flag_value & ZERO && *flag_value & LEFT_ADJUSTMENT)
 		*flag_value -= ZERO;
 	if ((*flag_value & ALTERNATE_FORME) 
-			&& (specifier != 'x' || specifier != 'X'))
+			&& (specifier != 'x')  && (specifier != 'X'))
 		*flag_value -= ALTERNATE_FORME;
 	if (*flag_value & PLUS_SIGN && specifier == 'p')
 		*flag_value -= PLUS_SIGN;
@@ -462,7 +509,7 @@ void	parsing_bonus_flag_value(char flag, int *flag_value)
 
 void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 {
-	del_print_initial_flags_identity(str);
+//	del_print_initial_flags_identity(str);//have to delete this line
 	while (*(++str) != specifier_struct->specifier)
 	{
 		if (ft_strchr(FLAGS, *str))
@@ -474,27 +521,6 @@ void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 	}
 	parsing_bonus_flag_overwrites(&specifier_struct->flag_value, 
 		specifier_struct->specifier);
-}
-
-void	del_print_content_address(t_list **strchain, char **specifier_struct_content)
-{
-//	printf("t_list strchain->content = %p\n", *strchain.content);
-	printf("s_specifier->content = %p\n", *specifier_struct_content);
-}
-
-void	ft_add_specifier_content(t_list **strchain, char **specifier_struct_content)
-{
-	int		count;
-	t_list	*new_chain;
-
-	count = 0;
-	while ((*specifier_struct_content)[count])
-		count++;
-	new_chain = ft_lstnew(*specifier_struct_content, count);
-	ft_lstadd_back(strchain, new_chain);
-	del_print_content_address(strchain, specifier_struct_content);
-//	printf("specifier = %c\n", specifier_struct->specifier);
-//	printf("	content = %s\n", specifier_struct->content);
 }
 
 int	parsing(char *str, t_list **strchain, va_list arg_list)
@@ -514,7 +540,7 @@ int	parsing(char *str, t_list **strchain, va_list arg_list)
 			break ;
 		}
 	}
-	specifier_tree(specifier_struct.specifier, arg_list, &specifier_struct.content);
+	specifier_tree(specifier_struct.specifier, arg_list, &specifier_struct);
 //	del_print_t_specifier(&specifier_struct);
 	ft_add_specifier_content(strchain, &specifier_struct.content);
 	return (0);
@@ -552,17 +578,70 @@ int	ft_printf(char *str, ...)
 int	main(void)
 {
 	char	test[] = "[test dans un test]";
-	char	*char_null = NULL;
+	char	*str_null = NULL;
 	int 	int_min = -2147483648;
 	int		int_max = 2147483647;
 	int		int_random = 42;
 	int		result;
 	int		real_result;
-	
-	result = ft_printf("%c, %s, %p, %d, %i, %u, %x, %X, %%", 'a', "[une phrase de test]", 
-			char_null, int_min, int_max, int_random, int_max, int_max);
-	printf("\nresult final no segfault = %d\n", result);
-	real_result = printf("%c, %s, %p, %d, %i, %u, %x, %X, %%", 'a', "[une phrase de test]", 
-			char_null, int_min, int_max, int_random, int_max, int_max);
-	printf("\nreal printf result = %d\n", real_result);
+
+	result = ft_printf("%%%%%d%%, %c, %s, %s, %p, %d, %i, %u, %x, %X, %%, %x, %X", 
+			int_random, 'a', "[une phrase de test]", 
+			str_null, str_null, int_min, int_max, int_random, int_max, int_max, int_min, -1);
+	printf("\nmine, result = %d\n", result);
+	real_result = printf("%%%%%d%%, %c, %s, %s, %p, %d, %i, %u, %x, %X, %%, %x, %X",
+		   	int_random, 'a', "[une phrase de test]", 
+			str_null, str_null, int_min, int_max, int_random, int_max, int_max, int_min, -1);
+	printf("\nreal, result = %d\n", real_result);
+	printf("******************************test avec null***************************\n");
+	printf("		case c :\n");
+	result = ft_printf("mine : %c\n",(char)NULL);
+	real_result = printf("real : %c\n", (char) NULL);
+	printf("result = %d / %d\n", result, real_result);
+	printf("		case s :\n");
+	result = ft_printf("mine : %s\n", NULL);
+	real_result = printf("real : %s\n", NULL);
+	printf("result = %d / %d\n", result, real_result);
+	printf("		case p :\n");
+	result = ft_printf("mine : %p\n", NULL);
+	real_result = printf("real : %p\n", NULL);
+	printf("result = %d / %d\n", result, real_result);
+	printf("		case d :\n");
+	result = ft_printf("mine : %d\n", (int)NULL);
+	real_result = printf("real : %d\n",(int)NULL);
+	printf("result = %d / %d\n", result, real_result);
+	ft_printf("		case x :\n");
+	result = ft_printf("mine : %x\n", (unsigned int)NULL);
+	real_result = printf("real : %x\n", (unsigned int)NULL);
+	printf("result = %d / %d\n", result, real_result);
+//	result = ft_printf("mine : %d\n", int_null);
+//	real_result = printf("real : %d\n", int_null);*/
+
+	printf("***************************testing flag #******************************\n");
+	printf("----------------test with x\n");
+	write (1, "mine : ", 7);	result = ft_printf("%#x", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%#x", 0);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+
+	write (1, "mine : ", 7);	result = ft_printf("%#x", int_random);		printf("\n");
+	printf("real : ");			real_result = printf("%#x", int_random);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+
+	write (1, "mine : ", 7);	result = ft_printf("%#x", int_max);		printf("\n");
+	printf("real : ");			real_result = printf("%#x", int_max);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+
+	printf("--------------test with X\n");
+
+	write (1, "mine : ", 7);	result = ft_printf("%#X", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%#X", 0);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+
+	write (1, "mine : ", 7);	result = ft_printf("%#X", int_random);		printf("\n");
+	printf("real : ");			real_result = printf("%#X", int_random);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+
+	write (1, "mine : ", 7);	result = ft_printf("%#X", int_max);		printf("\n");
+	printf("real : ");			real_result = printf("%#X", int_max);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
 }
