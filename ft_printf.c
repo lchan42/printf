@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/08 19:29:58 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/10 16:09:30 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,12 +119,13 @@ void	free_list(t_list *alst)
 	t_list *tmp;
 
 	tmp = alst;
-	while (alst)
+	while (tmp)
 	{
-		free(alst->content);
-		alst = alst->next;
+		free(tmp->content);
+		tmp = tmp->next;
+		free(alst);
+		alst = tmp;
 	}
-	free(tmp);
 }
 
 char	*ft_strndup(const char *s1, int	count)
@@ -210,20 +211,20 @@ int	ft_convertbase_size(unsigned long long int argument, int base)
 char	*ft_printf_itoa_hexa(int len, unsigned long long int argument, char specifier)
 {
 	char	*content;
-	int		added_space;
+	int		added_bytes;
 
-	added_space = 0;
+	added_bytes = 0;
 	if (!argument)
 		len++;
 	if (specifier == 'p')
-		added_space = 2;
-	content = (char *) malloc((len + added_space + 1) * sizeof(char));
+		added_bytes = 2;
+	content = (char *) malloc((len + added_bytes + 1) * sizeof(char));
 	if (!content)
 		return (NULL);
 	content[len] = '\0';
-	while (--len + added_space >= added_space)
+	while (--len + added_bytes >= added_bytes)
 	{
-		content[len + added_space] = HEXABASE[argument % 16];
+		content[len + added_bytes] = HEXABASE[argument % 16];
 		argument /= 16;
 //		printf("argument = %llu /HEXABASE[%llu] = %c\n", argument, argument % 16, HEXABASE[argument % 16]);
 	}
@@ -316,8 +317,9 @@ void	ft_case_X(unsigned  argument, char **t_specifier_content)
 
 void	ft_case_percent(char **t_specifier_content)
 {	
-	write(1, "%\n", 2);
+	*t_specifier_content = ft_strdup("%");//this malloc is not freed
 }
+
 void	specifier_tree(char specifier, va_list arg_list, char **t_specifier_content)
 {
 	if (specifier == 'c')
@@ -336,7 +338,7 @@ void	specifier_tree(char specifier, va_list arg_list, char **t_specifier_content
 		ft_case_x(va_arg(arg_list, unsigned int), t_specifier_content);
 	else if (specifier == 'X')
 		ft_case_X(va_arg(arg_list, unsigned int), t_specifier_content);
-	else if (specifier == '%')//no va_arg in this case
+	else if (specifier == '%')//no va_arg in this case??
 		ft_case_percent(t_specifier_content);
 }
 
@@ -474,7 +476,28 @@ void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 		specifier_struct->specifier);
 }
 
-int	parsing(char *str, va_list arg_list)
+void	del_print_content_address(t_list **strchain, char **specifier_struct_content)
+{
+//	printf("t_list strchain->content = %p\n", *strchain.content);
+	printf("s_specifier->content = %p\n", *specifier_struct_content);
+}
+
+void	ft_add_specifier_content(t_list **strchain, char **specifier_struct_content)
+{
+	int		count;
+	t_list	*new_chain;
+
+	count = 0;
+	while ((*specifier_struct_content)[count])
+		count++;
+	new_chain = ft_lstnew(*specifier_struct_content, count);
+	ft_lstadd_back(strchain, new_chain);
+	del_print_content_address(strchain, specifier_struct_content);
+//	printf("specifier = %c\n", specifier_struct->specifier);
+//	printf("	content = %s\n", specifier_struct->content);
+}
+
+int	parsing(char *str, t_list **strchain, va_list arg_list)
 {
 	int			len;
 	t_specifier	specifier_struct;
@@ -492,7 +515,8 @@ int	parsing(char *str, va_list arg_list)
 		}
 	}
 	specifier_tree(specifier_struct.specifier, arg_list, &specifier_struct.content);
-	del_print_t_specifier(&specifier_struct);
+//	del_print_t_specifier(&specifier_struct);
+	ft_add_specifier_content(strchain, &specifier_struct.content);
 	return (0);
 }
 
@@ -509,7 +533,7 @@ int	ft_printf(char *str, ...)
 	{
 		if (*str == '%')
 		{
-			parsing(str, arg_list);
+			parsing(str, &strchain, arg_list);
 			str += jump_specifier(str);
 		}
 		else
@@ -528,14 +552,17 @@ int	ft_printf(char *str, ...)
 int	main(void)
 {
 	char	test[] = "[test dans un test]";
-	int 	nb = -2147483648;
-	int		nb2 = 2147483647;
-	char	*null = NULL;
+	char	*char_null = NULL;
+	int 	int_min = -2147483648;
+	int		int_max = 2147483647;
+	int		int_random = 42;
 	int		result;
 	int		real_result;
 	
-	result = ft_printf("%c, %s, %d, %p, %x %X", 'a', "[une phrase de test]", nb, null, nb2, nb2);
+	result = ft_printf("%c, %s, %p, %d, %i, %u, %x, %X, %%", 'a', "[une phrase de test]", 
+			char_null, int_min, int_max, int_random, int_max, int_max);
 	printf("\nresult final no segfault = %d\n", result);
-	real_result = printf("%c, %s, %d, %p, %x %X", 'a', "[une phrase de test]", nb, null, nb2, nb2);
+	real_result = printf("%c, %s, %p, %d, %i, %u, %x, %X, %%", 'a', "[une phrase de test]", 
+			char_null, int_min, int_max, int_random, int_max, int_max);
 	printf("\nreal printf result = %d\n", real_result);
 }
