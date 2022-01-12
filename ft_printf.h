@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/12 17:35:07 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/12 22:55:56 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ enum e_flags
 //chained list
 size_t  ft_strlen(const char *s);
 t_list  *ft_lstlast(t_list *lst);
-t_list  *ft_lstnew(void *content, int count);
+static t_list  *ft_lstnew(void *content, int count);
 void    ft_lstadd_back(t_list **alst, t_list *new);
 int     ft_print_list_result(t_list *alst);
 void    free_list(t_list *alst);

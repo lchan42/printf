@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/12 17:35:06 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/12 22:55:54 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,9 +92,38 @@ char	*printf_strjoin_frees2(char const *s1, char const *s2)
 	return (joined);
 }
 
+char	*printf_strjoin_free(char const *s1, char const *s2)
+{
+	char	*joined;
+	size_t	index;
+	int		i;
+
+	index = 0;
+	if (s1 && s2)
+		joined = (char *)malloc((ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!s1 || !s2 || !joined)
+		return (NULL);
+	i = -1;
+	while (s1[++i])
+	{
+		joined[index] = s1[i];
+		index++;
+	}
+	i = -1;
+	while (s2[++i])
+	{
+		joined[index] = s2[i];
+		index++;
+	}
+	joined[index] = '\0';
+	free((void *)s1);
+	free((void *)s2);
+	return (joined);
+}
+
 /*****************************************************************
 *********chained list fonctions***********************************
-******************************************************************/
+* ************************************************************************** */
 t_list	*ft_lstlast(t_list *lst)
 {
 	if (!lst)
@@ -104,7 +133,7 @@ t_list	*ft_lstlast(t_list *lst)
 	return (lst);
 }
 
-t_list	*ft_lstnew(void *content, int count)
+static t_list	*ft_lstnew(void *content, int count)
 {
 	t_list	*tmp;
 	
@@ -212,10 +241,10 @@ char    *ft_strndup(const char *s1, int len)
         return (dup);
 }
 
-
 /********************************************************************
  ********adding BONUS FLAG to content *******************************
  ********************************************************************/
+/* ************************************************************************** */
 void	ft_add_space_or_plus(char **t_specifier_content, int flag_value)
 {
 	if (flag_value & PLUS_SIGN)
@@ -224,20 +253,100 @@ void	ft_add_space_or_plus(char **t_specifier_content, int flag_value)
 		*t_specifier_content = printf_strjoin_frees2(" ", *t_specifier_content);
 }
 
-void	ft_add_precision(t_list specifier_struct)
+void	ft_precision_case_null(t_specifier *specifier_struct)
 {
-	int	content_len;
-
-	content_len = ft_strlen(specifier_struct->content);
-	if (content_len > specifier_struct->digit_precision)
-		return ;
-	
-	
+	if (specifier_struct->specifier != 's' 
+		&& specifier_struct->content[0] == '0'
+		&& specifier_struct->digit_precision == 0)
+	{
+		free(specifier_struct->content);
+		specifier_struct->content = ft_strdup("");
+	}
 }
 
+void	ft_precision_case_signed(t_specifier *specifier_struct, int content_len)
+{
+	char	*index;
+	int		i;
+	int		new_content_len;
+	char	*new_content;
+
+	index = specifier_struct->content;
+	i = 0;
+	new_content_len = specifier_struct->digit_precision + 1;
+	new_content = (char*)malloc((new_content_len + 1) * sizeof(char));//WARNING malloc is here. be freed in strjoin_free tho
+	if (!new_content)
+		return ;
+	new_content[0] = specifier_struct->content[0];
+	while (++i < new_content_len - content_len + 1)
+		new_content[i] = '0';
+	while(*(++index))
+		new_content[i++] = *index;
+	new_content[new_content_len] = '\0';
+	free(specifier_struct->content);
+	specifier_struct->content = new_content;
+}
+
+void	ft_precision_case_unsigned(t_specifier*specifier_struct, int content_len)
+{	
+	char	*add_content;
+
+	content_len = specifier_struct->digit_precision - content_len;
+	add_content = (char*)malloc((content_len + 1) * sizeof(char));//WARNING malloc is here. be freed in strjoin_free tho
+	if (!add_content)
+		return ;
+	add_content[content_len] = '\0';
+	while (content_len--)
+		add_content[content_len] = '0';
+	specifier_struct->content = printf_strjoin_free(add_content, specifier_struct->content);
+
+}
+void	ft_add_precision(t_specifier *specifier_struct)
+{
+	int		content_len;
+
+	ft_precision_case_null(specifier_struct);
+	content_len = ft_strlen(specifier_struct->content);
+	if ((specifier_struct->specifier == 's' 
+		|| content_len > specifier_struct->digit_precision))
+		return ;
+	if (specifier_struct->content[0] == '+' || specifier_struct->content[0] == '-')
+		ft_precision_case_signed(specifier_struct, content_len);
+	else
+		ft_precision_case_unsigned(specifier_struct, content_len);
+}
+/*
+void	ft_add_precision(t_specifier *specifier_struct)
+{
+	int		content_len;
+	char	*add_content;
+
+	ft_add_precision_case_null(specifier_struct);
+	ft_add_precision_case_negative(specifier_struct);
+	ft_add_precision_case_positive(specifier_struct);
+
+
+	content_len = ft_strlen(specifier_struct->content);
+	if ((specifier_struct->specifier == 's' 
+		|| content_len > specifier_struct->digit_precision))
+		return ;
+	content_len = specifier_struct->digit_precision - content_len;
+	if (specifier_struct->content[0] == '-')
+		ft_precision_case_negative(specifier_struct, content_len)
+	else
+	{
+		add_content = (char*)malloc((content_len + 1) * sizeof(char));//WARNING malloc is here. be freed in strjoin_free tho
+		if (!add_content)
+			return ;
+		add_content[content_len] = '\0';
+		while (content_len--)
+			add_content[content_len] = '0';
+		specifier_struct->content = printf_strjoin_free(add_content, specifier_struct->content);
+	}
+}*/
 /*****************************************************************
  ** print functions (has to be deleted afterwards)****************
- * ***************************************************************/
+ * ************************************************************************** */
 
 void	del_print_initial_flags_identity(char *str)
 {
@@ -299,7 +408,7 @@ void	del_print_content_address(t_list **strchain, char **specifier_struct_conten
 
 /********************************************************************
  ********adding content to chain list *******************************
- ********************************************************************/
+ * ************************************************************************** */
 void	ft_add_str_content(char *str, t_list **strchain)
 {
 	int		count;
@@ -318,8 +427,10 @@ void	ft_add_specifier_content(t_list **strchain, t_specifier *specifier_struct)
 	t_list	*new_chain;
 
 	count = 0;
-	if (!specifier_struct->content)
+	if (!specifier_struct->content && specifier_struct->specifier != 'c')
 		return ;
+	if (specifier_struct->flag_value & PRECISION)
+		ft_add_precision(specifier_struct);
 	while (specifier_struct->content && specifier_struct->content[count])
 		count++;
 	new_chain = ft_lstnew(specifier_struct->content, count);
@@ -329,8 +440,7 @@ void	ft_add_specifier_content(t_list **strchain, t_specifier *specifier_struct)
 
 /********************************************************************
  ********specifier_tree**********************************************
- ********************************************************************/
-
+* ************************************************************************** */
 void	ft_case_c(int argument, char **t_specifier_content)
 {
 	char	c;
@@ -347,8 +457,11 @@ void	ft_case_c(int argument, char **t_specifier_content)
 void	ft_case_s(char *argument, t_specifier *specifier_struct)
 {
 	int	len;
-	
-	len = ft_strlen(argument);
+
+	if (argument)
+		len = ft_strlen(argument);
+	else
+		len = ft_strlen("(null)");
 	if (specifier_struct->flag_value & PRECISION 
 			&& specifier_struct->digit_precision < len)
 		len = specifier_struct->digit_precision;
@@ -520,7 +633,8 @@ void	specifier_tree(char specifier, va_list arg_list, t_specifier *specifier_str
 
 /*****************************************************************
  * *******position du curseur*************************************
- * ***************************************************************/
+* ************************************************************************** */
+
 int	jump_specifier (char *str)
 {
 	int	jump_len;
@@ -538,7 +652,7 @@ int	jump_specifier (char *str)
 
 /*********************************
  ************ parsing*************
- *********************************/
+ * ***************************************************************/
 
 char	*parsing_bonus_digit(char *str, t_specifier *specifier_struct)
 {
@@ -568,6 +682,9 @@ void	parsing_bonus_flag_overwrites(int *flag_value, char specifier)
 		*flag_value -= ALTERNATE_FORME;
 	if (*flag_value & PLUS_SIGN && specifier == 'p')
 		*flag_value -= PLUS_SIGN;
+	if ((*flag_value & PRECISION) 
+			&& (specifier == 'c' || specifier == 'p'))
+		*flag_value -= PRECISION;
 }
 
 void	parsing_bonus_flag_value(char flag, int *flag_value)
@@ -666,20 +783,24 @@ int	main(void)
 	int		int_random2 = -9;
 	int		result;
 	int		real_result;
-/*
+
 	result = ft_printf("%%%%%d%%, %c, %s, %s, %p, %d, %i, %u, %x, %X, %%, %x, %X", 
 			int_random, 'a', "[une phrase de test]", 
 			str_null, str_null, int_min, int_max, int_random, int_max, int_max, int_min, -1);
 	printf("\nmine, result = %d\n", result);
+//	result = ft_printf("%s", str_null);
+//	printf("\nmine, result = %d\n", result);
+//	real_result = printf("%s", str_null);
+//	printf("\nmine, real_result = %d\n", real_result);
 	real_result = printf("%%%%%d%%, %c, %s, %s, %p, %d, %i, %u, %x, %X, %%, %x, %X",
 		   	int_random, 'a', "[une phrase de test]", 
 			str_null, str_null, int_min, int_max, int_random, int_max, int_max, int_min, -1);
 	printf("\nreal, result = %d\n", real_result);
 	printf("******************************test avec null***************************\n");
 	printf("		case c :\n");
-	result = ft_printf("mine : %c\n",(char)NULL);
-	real_result = printf("real : %c\n", (char) NULL);
-	printf("result = %d / %d\n", result, real_result);
+	write (1, "mine : ", 7);	result = ft_printf("%c", (char)NULL);		printf("\n");
+	printf("real : ");			real_result = printf("%c", (char)NULL);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
 	printf("		case s :\n");
 	result = ft_printf("mine : %s\n", NULL);
 	real_result = printf("real : %s\n", NULL);
@@ -698,7 +819,7 @@ int	main(void)
 	printf("result = %d / %d\n", result, real_result);
 //	result = ft_printf("mine : %d\n", int_null);
 //	real_result = printf("real : %d\n", int_null);
-*/
+
 	printf("***************************testing flag [#]******************************\n");
 	printf("----------------test with x\n");
 	write (1, "mine : ", 7);	result = ft_printf("%#x", 0);		printf("\n");
@@ -798,9 +919,54 @@ int	main(void)
 	printf("----------------test with d and [.20]\n");
 	write (1, "mine : ", 7);	result = ft_printf("%.20d", int_random);		printf("\n");
 	printf("real : ");			real_result = printf("%.20d", int_random);
-	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");	
-	
-	/*
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d = 0 and [.]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.d", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%.d", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d = 0 and [.1]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.1d", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%.1d", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d = 0 and [.10]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.10d", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%.10d", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d = int_min and [.20]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.20d", int_min);		printf("\n");
+	printf("real : ");			real_result = printf("%.20d", int_min);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d = int_max and [+.20]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%+.20d", int_max);		printf("\n");
+	printf("real : ");			real_result = printf("%+.20d", int_max);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d = 0 and [+.20]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%+.20d", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%+.20d", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d = 0 and [+.]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%+.d", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%+.0d", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+
+	printf("----------------test with i = 0 and [.]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.i", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%.i", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with u = 0 and [.]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.u", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%.u", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with u = 0 and [.]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.u", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%.u", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with x = 0 and [.]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.x", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%.x", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+
+/*
 	printf("***************************testing flag [digit_width]******************************\n");
 	printf("----------------test with c\n");
 	write (1, "mine : ", 7);	result = ft_printf("%15c", 'a');		printf("\n");
