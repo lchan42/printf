@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/12 22:55:54 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/12 23:17:08 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,7 +262,15 @@ void	ft_precision_case_null(t_specifier *specifier_struct)
 		free(specifier_struct->content);
 		specifier_struct->content = ft_strdup("");
 	}
+	else if (specifier_struct->specifier != 's' 
+		&& specifier_struct->content[0] == '+'
+		&& ft_isdigit(specifier_struct->content[1])
+		&& specifier_struct->digit_precision == 0)
+	{
+		specifier_struct->content[1] = '\0';
+	}
 }
+
 
 void	ft_precision_case_signed(t_specifier *specifier_struct, int content_len)
 {
@@ -952,6 +960,10 @@ int	main(void)
 	printf("----------------test with i = 0 and [.]\n");
 	write (1, "mine : ", 7);	result = ft_printf("%.i", 0);		printf("\n");
 	printf("real : ");			real_result = printf("%.i", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with u = 0 and [.]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.u", 0);		printf("\n");
+	printf("real : ");			real_result = printf("%.u", 0);
 	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
 	printf("----------------test with u = 0 and [.]\n");
 	write (1, "mine : ", 7);	result = ft_printf("%.u", 0);		printf("\n");
