@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/11 19:29:31 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/12 16:15:48 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,6 +199,20 @@ char    *ft_strdup(const char *s1)
         return (dup - len);
 }
 
+/********************************************************************
+ ********adding BONUS FLAG to content *******************************
+ ********************************************************************/
+void	ft_add_space_or_plus(char **t_specifier_content, int flag_value)
+{
+	if (flag_value & PLUS_SIGN)
+		*t_specifier_content = printf_strjoin_frees2("+", *t_specifier_content);
+	else if	(flag_value & SPACE)
+		*t_specifier_content = printf_strjoin_frees2(" ", *t_specifier_content);
+}
+
+/********************************************************************
+ ********adding content to chain list *******************************
+ ********************************************************************/
 void	ft_add_str_content(char *str, t_list **strchain)
 {
 	int		count;
@@ -227,18 +241,6 @@ void	ft_add_specifier_content(t_list **strchain, char **specifier_struct_content
 //	del_print_content_address(strchain, specifier_struct_content);//have to delete this line
 }
 
-/********************************************************************
- ********adding BONUS FLAG to content *******************************
- ********************************************************************/
-void	ft_add_space_or_plus(char **t_specifier_content, int flag_value)
-{
-	if (flag_value & PLUS_SIGN)
-		*t_specifier_content = printf_strjoin_frees2("+", *t_specifier_content);
-	else if	(flag_value & SPACE)
-		*t_specifier_content = printf_strjoin_frees2(" ", *t_specifier_content);
-}
-
-/*******************************************************************/
 /********************************************************************
  ********specifier_tree**********************************************
  ********************************************************************/
@@ -625,9 +627,12 @@ int	main(void)
 {
 	char	test[] = "[test dans un test]";
 	char	*str_null = NULL;
+	char	char_null = (char)NULL;
 	int 	int_min = -2147483648;
+	int		int_null = 0;
 	int		int_max = 2147483647;
 	int		int_random = 42;
+	int		int_random2 = -9;
 	int		result;
 	int		real_result;
 /*
@@ -726,9 +731,84 @@ int	main(void)
 	write (1, "mine : ", 7);	result = ft_printf("%+%");		printf("\n");
 	printf("real : ");			real_result = printf("%+%");
 	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
-	printf("***************************testing flag [-]******************************\n");
-	printf("----------------test with d\n");
-	write (1, "mine : ", 7);	result = ft_printf("%-15d", int_max);		printf("\n");
-	printf("real : ");			real_result = printf("%-15d", int_max);
+	printf("**********************testing flag [.] and [precision digit]************************\n");
+	printf("----------------test with s and [.1]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.1s", test);		printf("\n");
+	printf("real : ");			real_result = printf("%.1s", test);
 	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s and [.9]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.9s", test);		printf("\n");
+	printf("real : ");			real_result = printf("%.9s", test);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s and [.15]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.15s", test);		printf("\n");
+	printf("real : ");			real_result = printf("%.15s", test);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s and [.50]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.50s", test);		printf("\n");
+	printf("real : ");			real_result = printf("%.50s", test);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s and [.500]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.500s", test);		printf("\n");
+	printf("real : ");			real_result = printf("%.500s", test);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+
+/*
+	printf("***************************testing flag [digit_width]******************************\n");
+	printf("----------------test with c\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15c", 'a');		printf("\n");
+	printf("real : ");			real_result = printf("%15c", 'a');
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with c\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15c", (char)NULL);		printf("\n");
+	printf("real : ");			real_result = printf("%15c", (char)NULL);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with c\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15c", (char)256);		printf("\n");
+	printf("real : ");			real_result = printf("%15c", (char)256);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15s", "random sentence");		printf("\n");
+	printf("real : ");			real_result = printf("%15s", "random sentence");
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15s", str_null);		printf("\n");
+	printf("real : ");			real_result = printf("%15s", str_null);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s and dot to check how it works\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15.3s", str_null);		printf("\n");
+	printf("real : ");			real_result = printf("%15.3s", str_null);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15s", test);		printf("\n");
+	printf("real : ");			real_result = printf("%15s", test);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with d and int_random\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15d", int_random);		printf("\n");
+	printf("real : ");			real_result = printf("%15d", int_random);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with d and int_null\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15d", int_null);		printf("\n");
+	printf("real : ");			real_result = printf("%15d", int_null);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with d and int min\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15d", int_min);		printf("\n");
+	printf("real : ");			real_result = printf("%15d", int_min);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with p\n");
+	write (1, "mine : ", 7);	result = ft_printf("%15p", &str_null);		printf("\n");
+	printf("real : ");			real_result = printf("%15p", &str_null);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with p\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.10x", int_max);		printf("\n");
+	printf("real : ");			real_result = printf("%.10x", int_max);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+
+
+
+	printf("----------------test with x\n");
+	write (1, "mine : ", 7);	result = ft_printf("%d", int_max);		printf("\n");
+	printf("real : ");			real_result = printf("%      - d", int_max);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+*/
 }
