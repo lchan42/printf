@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/12 16:15:48 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/12 17:35:06 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ void	free_list(t_list *alst)
 		alst = tmp;
 	}
 }
-
+/*
 char	*ft_strndup(const char *s1, int	count)
 {
 	char	*dup;
@@ -179,7 +179,7 @@ char	*ft_strndup(const char *s1, int	count)
 	*dup = '\0';	
 	return (result);
 }
-
+*/
 char    *ft_strdup(const char *s1)
 {
         size_t  len;
@@ -199,6 +199,20 @@ char    *ft_strdup(const char *s1)
         return (dup - len);
 }
 
+char    *ft_strndup(const char *s1, int len)
+{
+        char    *dup;
+
+        dup = (char *)malloc((len + 1) * sizeof(char));
+        if (!dup)
+                return (0);
+        dup[len] = '\0';
+        while (len--)
+                dup[len] = s1[len];
+        return (dup);
+}
+
+
 /********************************************************************
  ********adding BONUS FLAG to content *******************************
  ********************************************************************/
@@ -208,6 +222,79 @@ void	ft_add_space_or_plus(char **t_specifier_content, int flag_value)
 		*t_specifier_content = printf_strjoin_frees2("+", *t_specifier_content);
 	else if	(flag_value & SPACE)
 		*t_specifier_content = printf_strjoin_frees2(" ", *t_specifier_content);
+}
+
+void	ft_add_precision(t_list specifier_struct)
+{
+	int	content_len;
+
+	content_len = ft_strlen(specifier_struct->content);
+	if (content_len > specifier_struct->digit_precision)
+		return ;
+	
+	
+}
+
+/*****************************************************************
+ ** print functions (has to be deleted afterwards)****************
+ * ***************************************************************/
+
+void	del_print_initial_flags_identity(char *str)
+{
+	int	len;
+	char *tmp;
+
+	len = 0;
+	tmp = str;
+	while (++tmp)
+	{
+		if (ft_strchr(SPECIFIERS, *(tmp)))
+			break ;
+		len++;
+	}
+	write(1, "initial str flags = ", 20);
+	write(1, str + 1, len);
+}
+
+void	del_print_flags_identity(int flag_value)
+{
+	printf("   -->founed flag list :");
+	if (flag_value & ALTERNATE_FORME)
+		printf("[#]");
+	if (flag_value & SPACE)
+		printf("[ ]");
+	if (flag_value & PLUS_SIGN)
+		printf("[+]");
+	if (flag_value & LEFT_ADJUSTMENT)
+		printf("[-]");
+	if (flag_value & ZERO)
+		printf("[0]");
+	if (flag_value & PRECISION)
+		printf("[.]");
+	printf("\n");
+}
+void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to be delete afterwards
+{
+	printf("***********SPECIFIER PARSED INFORMATION ************\n");
+	printf("value of specifier_struct.specifier = %c\n", specifier_struct->specifier);
+	printf("value of specifier_struct.flag_value = %d\n", specifier_struct->flag_value);
+	if (specifier_struct->flag_value > 0)
+		del_print_flags_identity(specifier_struct->flag_value);
+	printf("value of specifier_struct.digit_width = %d\n", specifier_struct->digit_width);
+	printf("value of specifier_struct.digit_precision = %d\n", specifier_struct->digit_precision);
+	printf("value of specifier_struct.content = %s\n", specifier_struct->content);	
+	printf("****************************************************\n\n");
+}
+
+void	del_print_content_address(t_list **strchain, char **specifier_struct_content)
+{
+	t_list *tmp;
+
+	tmp = *strchain;
+	while (tmp->next)
+		tmp = tmp->next;
+	printf("t_list strchain->content = %p\n", tmp->content);
+	printf("s_specifier->content     = %p\n", *specifier_struct_content);
 }
 
 /********************************************************************
@@ -225,20 +312,19 @@ void	ft_add_str_content(char *str, t_list **strchain)
 	ft_lstadd_back(strchain, new_chain);
 }
 
-void	ft_add_specifier_content(t_list **strchain, char **specifier_struct_content)
+void	ft_add_specifier_content(t_list **strchain, t_specifier *specifier_struct)
 {
 	int		count;
 	t_list	*new_chain;
 
 	count = 0;
-	if (!specifier_struct_content)
+	if (!specifier_struct->content)
 		return ;
-
-	while (*specifier_struct_content && (*specifier_struct_content)[count])
+	while (specifier_struct->content && specifier_struct->content[count])
 		count++;
-	new_chain = ft_lstnew(*specifier_struct_content, count);
+	new_chain = ft_lstnew(specifier_struct->content, count);
 	ft_lstadd_back(strchain, new_chain);
-//	del_print_content_address(strchain, specifier_struct_content);//have to delete this line
+//	del_print_content_address(strchain, &specifier_struct->content);//have to delete this line
 }
 
 /********************************************************************
@@ -258,12 +344,18 @@ void	ft_case_c(int argument, char **t_specifier_content)
 	}
 }
 
-void	ft_case_s(char *argument, char **t_specifier_content)
+void	ft_case_s(char *argument, t_specifier *specifier_struct)
 {
+	int	len;
+	
+	len = ft_strlen(argument);
+	if (specifier_struct->flag_value & PRECISION 
+			&& specifier_struct->digit_precision < len)
+		len = specifier_struct->digit_precision;
 	if (!argument)
-		*t_specifier_content = ft_strdup("(null)");
+		specifier_struct->content = ft_strndup("(null)", len);
 	else
-		*t_specifier_content = ft_strdup(argument); //this malloc is not freed
+		specifier_struct->content = ft_strndup(argument, len); //this malloc is not freed
 }
 
 int	ft_convertbase_size(unsigned long long int argument, int base)
@@ -406,7 +498,7 @@ void	specifier_tree(char specifier, va_list arg_list, t_specifier *specifier_str
 	if (specifier == 'c')
 		ft_case_c(va_arg(arg_list, int), &specifier_struct->content);
 	else if (specifier == 's')
-		ft_case_s(va_arg(arg_list, char *), &specifier_struct->content);
+		ft_case_s(va_arg(arg_list, char *), specifier_struct);
 	else if (specifier == 'p')
 		ft_case_p((unsigned long long int)va_arg(arg_list, void *),
 			   	&specifier_struct->content);
@@ -444,67 +536,6 @@ int	jump_specifier (char *str)
 	return (0);
 }
 
-/*****************************************************************
- ** print functions (has to be deleted afterwards)****************
- * ***************************************************************/
-
-void	del_print_initial_flags_identity(char *str)
-{
-	int	len;
-	char *tmp;
-
-	len = 0;
-	tmp = str;
-	while (++tmp)
-	{
-		if (ft_strchr(SPECIFIERS, *(tmp)))
-			break ;
-		len++;
-	}
-	write(1, "initial str flags = ", 20);
-	write(1, str + 1, len);
-}
-
-void	del_print_flags_identity(int flag_value)
-{
-	printf("   -->founed flag list :");
-	if (flag_value & ALTERNATE_FORME)
-		printf("[#]");
-	if (flag_value & SPACE)
-		printf("[ ]");
-	if (flag_value & PLUS_SIGN)
-		printf("[+]");
-	if (flag_value & LEFT_ADJUSTMENT)
-		printf("[-]");
-	if (flag_value & ZERO)
-		printf("[0]");
-	if (flag_value & PRECISION)
-		printf("[.]");
-	printf("\n");
-}
-void	del_print_t_specifier(t_specifier *specifier_struct)//this function has to be delete afterwards
-{
-	printf("***********SPECIFIER PARSED INFORMATION ************\n");
-	printf("value of specifier_struct.specifier = %c\n", specifier_struct->specifier);
-	printf("value of specifier_struct.flag_value = %d\n", specifier_struct->flag_value);
-	if (specifier_struct->flag_value > 0)
-		del_print_flags_identity(specifier_struct->flag_value);
-	printf("value of specifier_struct.digit_width = %d\n", specifier_struct->digit_width);
-	printf("value of specifier_struct.digit_precision = %d\n", specifier_struct->digit_precision);
-	printf("value of specifier_struct.content = %s\n", specifier_struct->content);	
-	printf("****************************************************\n\n");
-}
-
-void	del_print_content_address(t_list **strchain, char **specifier_struct_content)
-{
-	t_list *tmp;
-
-	tmp = *strchain;
-	while (tmp->next)
-		tmp = tmp->next;
-	printf("t_list strchain->content = %p\n", tmp->content);
-	printf("s_specifier->content     = %p\n", *specifier_struct_content);
-}
 /*********************************
  ************ parsing*************
  *********************************/
@@ -590,7 +621,7 @@ int	parsing(char *str, t_list **strchain, va_list arg_list)
 	}
 	specifier_tree(specifier_struct.specifier, arg_list, &specifier_struct);
 //	del_print_t_specifier(&specifier_struct);
-	ft_add_specifier_content(strchain, &specifier_struct.content);
+	ft_add_specifier_content(strchain, &specifier_struct);
 	return (0);
 }
 
@@ -752,8 +783,24 @@ int	main(void)
 	write (1, "mine : ", 7);	result = ft_printf("%.500s", test);		printf("\n");
 	printf("real : ");			real_result = printf("%.500s", test);
 	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
-
-/*
+	printf("----------------test with d and [.]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.d", int_random);		printf("\n");
+	printf("real : ");			real_result = printf("%.d", int_random);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d and [.1]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.1d", int_random);		printf("\n");
+	printf("real : ");			real_result = printf("%.1d", int_random);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d and [.10]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.10d", int_random);		printf("\n");
+	printf("real : ");			real_result = printf("%.10d", int_random);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d and [.20]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%.20d", int_random);		printf("\n");
+	printf("real : ");			real_result = printf("%.20d", int_random);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");	
+	
+	/*
 	printf("***************************testing flag [digit_width]******************************\n");
 	printf("----------------test with c\n");
 	write (1, "mine : ", 7);	result = ft_printf("%15c", 'a');		printf("\n");
