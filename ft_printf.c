@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/13 17:24:24 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/13 21:28:29 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,42 +267,91 @@ void	ft_add_space_or_plus(char **t_specifier_content, int flag_value)
 		*t_specifier_content = printf_strjoin_frees2(" ", *t_specifier_content);
 }
 
+void	ft_add_padding_onright(int content_len, t_specifier *specifier_struct)
+{
+
+	int		i;
+	char	padding;
+	char	*padded_content;
+
+	i = -1;
+	if (specifier_struct->flag_value & ZERO)
+		padding = '0';
+	else
+		padding = ' ';
+	padded_content = (char *)malloc(specifier_struct->digit_width + 1);
+	while (specifier_struct->content[++i])
+		padded_content[i] = specifier_struct->content[i];
+	while (i < specifier_struct->digit_width)
+		padded_content[i++] = padding;
+	padded_content[specifier_struct->digit_width] = '\0';
+	free(specifier_struct->content);
+	specifier_struct->content = padded_content;
+}
+
+void	ft_add_padding_onleft(int content_len, t_specifier *specifier_struct)
+{	
+	int		i;
+	int		j;
+	char	padding;
+	char	*padded_content;
+
+	i = -1;
+	j = 0;
+	if (specifier_struct->flag_value & ZERO)
+		padding = '0';
+	else
+		padding = ' ';
+	padded_content = (char *)malloc(specifier_struct->digit_width + 1);
+	while (++i < specifier_struct->digit_width - content_len)
+		padded_content[i] = padding;
+	while (j < content_len)
+		padded_content[i++] = specifier_struct->content[j++];
+	padded_content[i] = '\0';
+	free(specifier_struct->content);
+	specifier_struct->content = padded_content;
+}
+
+void	ft_add_padding(t_specifier *specifier_struct)
+{
+	int		content_len;
+	char	padding;
+	content_len = ft_strlen(specifier_struct->content);
+	if (specifier_struct->digit_width < content_len)
+		return;
+	if (specifier_struct->flag_value & LEFT_ADJUSTMENT)
+		ft_add_padding_onright(content_len, specifier_struct);
+	else
+		ft_add_padding_onleft(content_len, specifier_struct);
+}
+
+/******************************adding precision*********************************/
 void	ft_precision_case_null(t_specifier *specifier_struct)
 {
 //	printf("content = %s\n", specifier_struct->content);
 //	printf("content len = %zu\n", ft_strlen(specifier_struct->content));
 	if (specifier_struct->flag_value & ALTERNATE_FORME
-		&& ft_strlen(specifier_struct->content) == 1
-		&& specifier_struct->digit_precision == 0)
+		&& ft_strlen(specifier_struct->content) == 1)
 	{
-		printf("I am a Null alternate forme x\n");
+//		printf("I am a Null alternate forme x\n");
 		free(specifier_struct->content);
 		specifier_struct->content = ft_strdup("");
 	}
 	else if (specifier_struct->specifier != 's' 
 		&& !(specifier_struct->flag_value & ALTERNATE_FORME)
-		&& specifier_struct->content[0] == '0'
-		&& specifier_struct->digit_precision == 0)
+		&& specifier_struct->content[0] == '0')
 	{
-		printf("I am null non alternate forme \n");
+//		printf("I am null non alternate forme \n");
 		free(specifier_struct->content);
 		specifier_struct->content = ft_strdup("");
 	}
 	else if (specifier_struct->specifier != 's' 
 		&& ft_strchr_booleen(" +", specifier_struct->content[0])
-		&& ft_isdigit(specifier_struct->content[1])
-		&& specifier_struct->digit_precision == 0)
+		&& specifier_struct->content[1] == '0')
 	{
-		printf("I am null signed x\n");
+//		printf("I am signed null content\n");
 		specifier_struct->content[1] = '\0';
 	}
-/*	else if (specifier_struct->specifier != 's' 
-		&& specifier_struct->content[0] == ' '
-		&& ft_isdigit(specifier_struct->content[1])
-		&& specifier_struct->digit_precision == 0)
-	{
-		specifier_struct->content[1] = '\0';
-	}*/
 }
 
 
@@ -373,13 +422,12 @@ void	ft_add_precision(t_specifier *specifier_struct)
 {
 	int		content_len;
 
-	ft_precision_case_null(specifier_struct);
+	if (specifier_struct->digit_precision == 0)
+		ft_precision_case_null(specifier_struct);
 	content_len = ft_strlen(specifier_struct->content);
 	if ((specifier_struct->specifier == 's' 
 		|| content_len > specifier_struct->digit_precision))
 		return ;
-//	if (specifier_struct->content[0] == '+' || specifier_struct->content[0] == '-'
-//			|| specifier_struct->content[0] == ' ')
 	if (ft_strchr_booleen("-+ ", specifier_struct->content[0]))
 		ft_precision_case_signed(specifier_struct, content_len);
 	else if (specifier_struct->content[0] == '0' 
@@ -388,35 +436,6 @@ void	ft_add_precision(t_specifier *specifier_struct)
 	else
 		ft_precision_case_unsigned(specifier_struct, content_len);
 }
-/*
-void	ft_add_precision(t_specifier *specifier_struct)
-{
-	int		content_len;
-	char	*add_content;
-
-	ft_add_precision_case_null(specifier_struct);
-	ft_add_precision_case_negative(specifier_struct);
-	ft_add_precision_case_positive(specifier_struct);
-
-
-	content_len = ft_strlen(specifier_struct->content);
-	if ((specifier_struct->specifier == 's' 
-		|| content_len > specifier_struct->digit_precision))
-		return ;
-	content_len = specifier_struct->digit_precision - content_len;
-	if (specifier_struct->content[0] == '-')
-		ft_precision_case_negative(specifier_struct, content_len)
-	else
-	{
-		add_content = (char*)malloc((content_len + 1) * sizeof(char));//WARNING malloc is here. be freed in strjoin_free tho
-		if (!add_content)
-			return ;
-		add_content[content_len] = '\0';
-		while (content_len--)
-			add_content[content_len] = '0';
-		specifier_struct->content = printf_strjoin_free(add_content, specifier_struct->content);
-	}
-}*/
 /*****************************************************************
  ** print functions (has to be deleted afterwards)****************
  * ************************************************************************** */
@@ -504,6 +523,8 @@ void	ft_add_specifier_content(t_list **strchain, t_specifier *specifier_struct)
 		return ;
 	if (specifier_struct->flag_value & PRECISION)
 		ft_add_precision(specifier_struct);
+	if (specifier_struct->digit_width)
+		ft_add_padding(specifier_struct);
 	while (specifier_struct->content && specifier_struct->content[count])
 		count++;
 	new_chain = ft_lstnew(specifier_struct->content, count);
@@ -742,6 +763,15 @@ char	*parsing_bonus_digit(char *str, t_specifier *specifier_struct)
 		specifier_struct->digit_width = result;
 	return (str - 1);
 }
+/*
+void	parsing_bonus_digit_overwrites(t_specifier *specifier_struct)
+{
+//	printf("\nflag_value before overwrite = %d\n", *flag_value);//have to delete this line
+	if (specifier_struct->specifier != 's'
+			&& specifier_struct->digit_width < specifier_struct->digit_precision)
+			specifier_struct->digit_width = 0;
+}
+*/
 
 void	parsing_bonus_flag_overwrites(int *flag_value, char specifier)
 {
@@ -758,6 +788,9 @@ void	parsing_bonus_flag_overwrites(int *flag_value, char specifier)
 	if ((*flag_value & PRECISION) 
 			&& (specifier == 'c' || specifier == 'p'))
 		*flag_value -= PRECISION;
+	if (*flag_value & PRECISION  && *flag_value & ZERO
+			&& ft_strchr_booleen("diouxX", specifier))
+		*flag_value -= ZERO;
 }
 
 void	parsing_bonus_flag_value(char flag, int *flag_value)
@@ -790,6 +823,8 @@ void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 	}
 	parsing_bonus_flag_overwrites(&specifier_struct->flag_value, 
 		specifier_struct->specifier);
+//	parsing_bonus_digit_overwrites(specifier_struct);
+
 }
 
 int	parsing(char *str, t_list **strchain, va_list arg_list)

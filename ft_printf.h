@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/13 17:24:27 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/13 21:28:31 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,10 @@ enum e_flags
 					//has undefined behaviour with c, s, p, u, x, X
 					//works with d, i, 
 	LEFT_ADJUSTMENT = 8, //overrights ZERO // not here for string
-	ZERO = 16,//IS OVERWRITTEN BY LEFT_ADJUDSTMENT
+	ZERO = 16,	//IS OVERWRITTEN BY LEFT_ADJUDSTMENT
+				//is ignored with [.] flag if with d, i, o, u, x, X
+				//has undefined behavious with c, s, p
+				//works with d, i, u, x, X
 	PRECISION = 32, // case string :gives the number of byte to print. 
 					//else if number or hexa the dot is treated as ZERO
 					//seens that no flag can appear after precisions. 
