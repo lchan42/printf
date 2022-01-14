@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/14 17:21:43 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/14 19:48:02 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -553,4 +553,47 @@ int	main(void)
 	write (1, "mine : ", 7);	result = ft_printf("%025.20s", test);		printf("\n");
 	printf("real : ");			real_result = printf("%025.20s", test);
 	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+
+
+	printf("SANTANA TEST THAT I FAILED ONCE \n");
+	printf("----------- test with c\n");
+	printf("----------------test with c = 't' and [10c]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%10c]", 't');		printf("\n");
+	printf("real : ");			real_result = printf("[%10c]", 't');
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with c = 't' and [2c]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%2c]", 'c');		printf("\n");
+	printf("real : ");			real_result = printf("[%2c]", 'c');
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with c = 't' and [2c]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[The number %7c represents luck", '7');	printf("\n");
+	printf("real : ");			real_result = printf("[The number %7c represents luck", '7');
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------- test with padding \n");
+	printf("----------------test with d = -42000 and [020d]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%020d", -42000);	printf("\n");
+	printf("real : ");			real_result = printf("%020d", -42000);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with i = -42000 and [020d]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%020d", -42000);	printf("\n");
+	printf("real : ");			real_result = printf("%020d", -42000);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with  = -42000 and [020d]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%020d", -42000);	printf("\n");
+	printf("real : ");			real_result = printf("%020d", -42000);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with d = -42000 and [020d]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%020d", -42000);	printf("\n");
+	printf("real : ");			real_result = printf("%020d", -42000);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with multiple c = 0\n");
+	write (1, "mine : ", 7);	result = ft_printf("%-2c*", 0);	printf("\n");
+	printf("real : ");			real_result = printf("%-2c*", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+
+	printf("----------------test with multiple c= 0 c = 'a' c = 0 and [-2][-3][-4]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%-2c%-3c%-4c*", 0, 'a', 0);	printf("\n");
+	printf("real : ");			real_result = printf("%-2c%-3c%-4c*", 0, 'a', 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+
 }

@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/14 17:21:41 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/14 19:47:59 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ char	*printf_strjoin_free(char const *s1, char const *s2);
 char	*ft_strdup(const char *s1);
 char	*ft_strndup(const char *s1, int len);
 
-
 //chained list fonctions
 t_list			*ft_lstlast(t_list *lst);
 static t_list	*ft_lstnew(void *content, int count);
@@ -93,7 +92,7 @@ void	free_list(t_list *alst);
 void	ft_add_space_or_plus(char **t_specifier_content, int flag_value);
 
 //adding padding
-void	ft_add_padding_onright(int content_len, t_struct *t_specifier);
+void	ft_add_padding_onright(t_struct *t_specifier);
 void	ft_add_padding_onleft(int content_len, t_struct *t_specifier);
 void	ft_add_padding(t_struct *t_specifier);
 
@@ -132,7 +131,7 @@ int		jump_specifier(char *str);
 char	*parsing_bonus_digit(char *str, t_struct *t_specifier);
 void	parsing_bonus_flag_overwrites(int *flag_value, char specifier);
 void	parsing_bonus_flag_value(char flag, int *flag_value);
-void	parsing_bonus(char *str, int len, t_struct *t_specifier);
+void	parsing_bonus(char *str, t_struct *t_specifier);
 int		parsing(char *str, t_list **strchain, va_list arg_list);
 	
 //ft_printf

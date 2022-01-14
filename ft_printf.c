@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/14 17:21:39 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/14 19:47:56 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,6 +253,36 @@ void	ft_add_space_or_plus(char **t_specifier_content, int flag_value)
  ********************************************************************/
 /* ************************************************************************** */
 
+void	ft_add_padding_onright(t_struct *t_specifier)
+{
+	int		i;
+	int		case_c;
+	char	padding;
+	char	*padded_content;
+
+	i = -1;
+	case_c = 0;
+	if (t_specifier->flag_value & ZERO)
+		padding = '0';
+	else
+		padding = ' ';
+	if (!t_specifier->content && t_specifier->specifier == 'c')
+		case_c = -1;
+	padded_content = (char *)malloc(t_specifier->width + case_c + 1);
+	if (!padded_content)
+		return ;
+	while (t_specifier->content && t_specifier->content[++i])
+		padded_content[i] = t_specifier->content[i];
+	if (i == -1)
+		i++;
+	while (i < t_specifier->width + case_c)
+		padded_content[i++] = padding;
+	padded_content[t_specifier->width + case_c] = '\0';
+	free(t_specifier->content);
+	t_specifier->content = padded_content;
+}
+
+/*
 void	ft_add_padding_onright(int content_len, t_struct *t_specifier)
 {
 	int		i;
@@ -273,6 +303,31 @@ void	ft_add_padding_onright(int content_len, t_struct *t_specifier)
 	free(t_specifier->content);
 	t_specifier->content = padded_content;
 }
+*/
+
+void	ft_add_padding_case_signed(t_struct *t_specifier, int content_len)
+{
+	char	*index;
+	int		i;
+	int		new_content_len;
+	char	*new_content;
+
+	index = t_specifier->content;
+	i = 0;
+	new_content_len = t_specifier->precision + 1;
+	new_content = (char *)malloc((new_content_len + 1) * sizeof(char));
+	//WARNING malloc is here. be freed in strjoin_free tho
+	if (!new_content)
+		return ;
+	new_content[0] = t_specifier->content[0];
+	while (++i < new_content_len - content_len + 1)
+		new_content[i] = '0';
+	while (*(++index))
+		new_content[i++] = *index;
+	new_content[new_content_len] = '\0';
+	free(t_specifier->content);
+	t_specifier->content = new_content;
+}
 
 void	ft_add_padding_onleft(int content_len, t_struct *t_specifier)
 {	
@@ -292,12 +347,22 @@ void	ft_add_padding_onleft(int content_len, t_struct *t_specifier)
 		return ;
 	while (++i < t_specifier->width - content_len)
 		padded_content[i] = padding;
-	if (t_specifier->specifier == 'c')
+	if (t_specifier->specifier == 'c' && !t_specifier->content)
 		while (i < t_specifier->width - 1 && j < content_len)
 			padded_content[i++] = t_specifier->content[j++];
 	else
 		while (i < t_specifier->width && j < content_len)
-			padded_content[i++] = t_specifier->content[j++];
+		{
+			if (ft_strchr_booleen("di", t_specifier->specifier)
+				&& ft_strchr_booleen("-+ ", t_specifier->content[j])
+				&& padding == '0')
+			{
+				padded_content[0] = t_specifier->content[j++];
+				padded_content[i++] = padding;
+			}
+			else
+				padded_content[i++] = t_specifier->content[j++];
+		}
 	padded_content[i] = '\0';
 	free(t_specifier->content);
 	t_specifier->content = padded_content;
@@ -306,7 +371,6 @@ void	ft_add_padding_onleft(int content_len, t_struct *t_specifier)
 void	ft_add_padding(t_struct *t_specifier)
 {
 	int		content_len;
-	char	padding;
 
 	if (t_specifier->content)
 		content_len = ft_strlen(t_specifier->content);
@@ -315,7 +379,7 @@ void	ft_add_padding(t_struct *t_specifier)
 	if (t_specifier->width <= content_len)
 		return ;
 	if (t_specifier->flag_value & LEFT_ADJUSTMENT)
-		ft_add_padding_onright(content_len, t_specifier);
+		ft_add_padding_onright(t_specifier);
 	else
 		ft_add_padding_onleft(content_len, t_specifier);
 }
@@ -809,7 +873,7 @@ void	parsing_bonus_flag_value(char flag, int *flag_value)
 		*flag_value |= PRECISION;
 }
 
-void	parsing_bonus(char *str, int len, t_struct *t_specifier)
+void	parsing_bonus(char *str, t_struct *t_specifier)
 {
 //	del_print_initial_flags_identity(str);//have to delete this line
 	while (*(++str) != t_specifier->specifier)
@@ -839,7 +903,7 @@ int	parsing(char *str, t_list **strchain, va_list arg_list)
 		{
 			t_specifier.specifier = str[len];
 			if (len > 1)
-				parsing_bonus(str, len, &t_specifier);
+				parsing_bonus(str, &t_specifier);
 			break ;
 		}
 	}
