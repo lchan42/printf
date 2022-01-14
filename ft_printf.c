@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/13 21:28:29 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/14 14:50:44 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,7 +305,7 @@ void	ft_add_padding_onleft(int content_len, t_specifier *specifier_struct)
 	padded_content = (char *)malloc(specifier_struct->digit_width + 1);
 	while (++i < specifier_struct->digit_width - content_len)
 		padded_content[i] = padding;
-	while (j < content_len)
+	while ( i < specifier_struct->digit_width - 1 && j < content_len)
 		padded_content[i++] = specifier_struct->content[j++];
 	padded_content[i] = '\0';
 	free(specifier_struct->content);
@@ -316,8 +316,11 @@ void	ft_add_padding(t_specifier *specifier_struct)
 {
 	int		content_len;
 	char	padding;
-	content_len = ft_strlen(specifier_struct->content);
-	if (specifier_struct->digit_width < content_len)
+	if (specifier_struct->content)
+		content_len = ft_strlen(specifier_struct->content);
+	else
+		content_len = 1;
+	if (specifier_struct->digit_width <= content_len)
 		return;
 	if (specifier_struct->flag_value & LEFT_ADJUSTMENT)
 		ft_add_padding_onright(content_len, specifier_struct);
@@ -824,7 +827,6 @@ void	parsing_bonus(char *str, int len, t_specifier *specifier_struct)
 	parsing_bonus_flag_overwrites(&specifier_struct->flag_value, 
 		specifier_struct->specifier);
 //	parsing_bonus_digit_overwrites(specifier_struct);
-
 }
 
 int	parsing(char *str, t_list **strchain, va_list arg_list)
