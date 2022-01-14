@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/14 14:50:45 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/14 16:53:19 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,14 @@ typedef struct s_list
 	struct s_list	*next;
 }	t_list;
 
-typedef struct s_specifier
+typedef struct s_struct
 {
 	char	specifier;
 	int		flag_value;
-	int		digit_width;
-	int		digit_precision; // real printf can manage numbers that are over int;
+	int		width;
+	int		precision; // real printf can manage numbers that are over int;
 	char	*content;
-}	t_specifier;
+}	t_struct;
 
 enum e_flags
 {

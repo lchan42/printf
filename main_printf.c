@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/14 14:50:42 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/14 16:53:22 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	main(void)
 	int		result;
 	int		real_result;
 
-/*	result = ft_printf("%%%%%d%%, %c, %s, %s, %p, %d, %i, %u, %x, %X, %%, %x, %X", 
+	result = ft_printf("%%%%%d%%, %c, %s, %s, %p, %d, %i, %u, %x, %X, %%, %x, %X", 
 			int_random, 'a', "[une phrase de test]", 
 			str_null, str_null, int_min, int_max, int_random, int_max, int_max, int_min, -1);
 	printf("\nmine, result = %d\n", result);
@@ -323,7 +323,7 @@ int	main(void)
 	write (1, "mine : ", 7);	result = ft_printf("[%-15c]", 'a');		printf("\n");
 	printf("real : ");			real_result = printf("[%-15c]", 'a');
 	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
-*/	printf("----------------test with c = (char)NULL and [no flag]\n");
+	printf("----------------test with c = (char)NULL and [no flag]\n");
 	write (1, "mine : ", 7);	result = ft_printf("[%c]", (char)NULL);		printf("\n");
 	printf("real : ");			real_result = printf("[%c]", (char)NULL);
 	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
@@ -348,14 +348,42 @@ int	main(void)
 	write (1, "mine : ", 7);	result = ft_printf("[%15c]", (char)256);		printf("\n");
 	printf("real : ");			real_result = printf("[%15c]", (char)256);
 	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
-/*	printf("----------------test with s = test and [1]\n");
-	write (1, "mine : ", 7);	result = ft_printf("%1s", test);		printf("\n");
-	printf("real : ");			real_result = printf("%1s", test);
+
+
+	printf("----------------test with s = test and [1]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%1s]", test);		printf("\n");
+	printf("real : ");			real_result = printf("[%1s]", test);
 	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
 	printf("----------------test with s = test and [1]\n");
-	write (1, "mine : ", 7);	result = ft_printf("%15s", str_null);		printf("\n");
-	printf("real : ");			real_result = printf("%15s", str_null);
+	write (1, "mine : ", 7);	result = ft_printf("[%1s]", str_null);		printf("\n");
+	printf("real : ");			real_result = printf("[%1s]", str_null);
 	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s = test and [50]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%50s]", test);		printf("\n");
+	printf("real : ");			real_result = printf("[%50s]", test);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s = test and [50]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%50s]", str_null);		printf("\n");
+	printf("real : ");			real_result = printf("[%50s]", str_null);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s = test and [-1]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%-1s]", test);		printf("\n");
+	printf("real : ");			real_result = printf("[%-1s]", test);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s = test and [1]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%-1s]", str_null);		printf("\n");
+	printf("real : ");			real_result = printf("[%-1s]", str_null);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s = test and [50]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%-50s]", test);		printf("\n");
+	printf("real : ");			real_result = printf("[%-50s]", test);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+	printf("----------------test with s = test and [-50]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%-50s]", str_null);		printf("\n");
+	printf("real : ");			real_result = printf("[%-50s]", str_null);
+	printf("\nresult = %d / %d\n", result, real_result);			printf("\n");
+
+
 
 	printf("*************************************test with d *******************************\n");
 	printf("----------------test with d and [15.]\n");
@@ -518,5 +546,5 @@ int	main(void)
 	printf("----------------test with d = int_max and [025.200]\n");
 	write (1, "mine : ", 7);	result = ft_printf("%025.20d", int_max);		printf("\n");
 	printf("real : ");			real_result = printf("%025.20d", int_max);
-	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");*/
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
 }
