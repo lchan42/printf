@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/14 16:53:19 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/14 17:21:41 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,18 +67,76 @@ enum e_flags
 					//				If %s prints [(null)] %.3s will print [(nul],
 };
 
-//chained list
-size_t  ft_strlen(const char *s);
-t_list  *ft_lstlast(t_list *lst);
-static t_list  *ft_lstnew(void *content, int count);
-void    ft_lstadd_back(t_list **alst, t_list *new);
-int     ft_print_list_result(t_list *alst);
-void    free_list(t_list *alst);
-
 //utiles
-char    *ft_strndup(const char *s1, int count);
-void    ft_add_str_content(char *str, t_list **strchain);
-char    *ft_strchr(const char *s, int c);
-int     ft_printf(char *str, ...);
+//	untiles_1
+size_t	ft_strlen(const char *s);
+int		ft_isdigit(int c);
+int		ft_isnonull_digit(int c);
+char	*ft_strchr(const char *s, int c);
+int		ft_strchr_booleen(const char *s, int c);
+//	utiles_2
+void	struct_init(t_struct *t_specifier);
+char	*printf_strjoin_frees2(char const *s1, char const *s2);
+char	*printf_strjoin_free(char const *s1, char const *s2);
+char	*ft_strdup(const char *s1);
+char	*ft_strndup(const char *s1, int len);
+
+
+//chained list fonctions
+t_list			*ft_lstlast(t_list *lst);
+static t_list	*ft_lstnew(void *content, int count);
+void		ft_lstadd_back(t_list **alst, t_list *new);
+int		ft_print_list_result(t_list *alst);
+void	free_list(t_list *alst);
+
+//adding BONUS FLAG to content
+void	ft_add_space_or_plus(char **t_specifier_content, int flag_value);
+
+//adding padding
+void	ft_add_padding_onright(int content_len, t_struct *t_specifier);
+void	ft_add_padding_onleft(int content_len, t_struct *t_specifier);
+void	ft_add_padding(t_struct *t_specifier);
+
+//adding precision
+void	ft_precision_case_null(t_struct *t_specifier);
+void	ft_precision_case_signed(t_struct *t_specifier, int content_len);
+void	ft_precision_case_0x(t_struct *t_specifier, int content_len);
+void	ft_precision_case_unsigned(t_struct*t_specifier, int content_len);
+void	ft_add_precision(t_struct *t_specifier);
+
+//adding content to chain list
+void	ft_add_str_content(char *str, t_list **strchain);
+void	ft_add_specifier_content(t_list **strchain, t_struct *t_specifier);
+
+//specifier_tree
+//	case_csp
+void	ft_case_c(int argument, char **t_specifier_content);
+void	ft_case_s(char *argument, t_struct *t_specifier);
+int		ft_convertbase_size(unsigned long long int argument, int base);
+char	*ft_printf_itoa_hexa(int len,
+			unsigned long long int argument, char specifier);
+void	ft_case_p(unsigned long long int argument, char **t_specifier_content);
+//	case_duxxmajpercent
+void	ft_case_d(int argument, char **t_specifier_content, int flag_value);
+void	ft_case_u(unsigned int argument, char **t_specifier_content);
+void	ft_case_x(unsigned int argument, t_struct *t_specifier);
+void	ft_case_xmaj(unsigned argument, t_struct *t_specifier);
+void	ft_case_percent(char **t_specifier_content);
+//	specifier_tree
+void	specifier_tree(char specifier, va_list arg_list, t_struct *t_specifier);
+
+//cursor_jump_specifier
+int		jump_specifier(char *str);
+
+//parsing
+char	*parsing_bonus_digit(char *str, t_struct *t_specifier);
+void	parsing_bonus_flag_overwrites(int *flag_value, char specifier);
+void	parsing_bonus_flag_value(char flag, int *flag_value);
+void	parsing_bonus(char *str, int len, t_struct *t_specifier);
+int		parsing(char *str, t_list **strchain, va_list arg_list);
+	
+//ft_printf
+int		ft_printf(char *str, ...)
+	__attribute__((format (printf, 1, 2)));
 
 #endif 

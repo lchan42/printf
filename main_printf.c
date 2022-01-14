@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/14 16:53:22 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/14 17:21:43 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -546,5 +546,11 @@ int	main(void)
 	printf("----------------test with d = int_max and [025.200]\n");
 	write (1, "mine : ", 7);	result = ft_printf("%025.20d", int_max);		printf("\n");
 	printf("real : ");			real_result = printf("%025.20d", int_max);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+
+	printf("checking undefined behavior");
+	printf("----------------test with s = test and [025.20s]\n");
+	write (1, "mine : ", 7);	result = ft_printf("%025.20s", test);		printf("\n");
+	printf("real : ");			real_result = printf("%025.20s", test);
 	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
 }
