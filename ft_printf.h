@@ -92,6 +92,7 @@ void	free_list(t_list *alst);
 void	ft_add_space_or_plus(char **t_specifier_content, int flag_value);
 
 //adding padding
+void	ft_add_padding_onright_cnull(t_struct *t_dprvigirt, char **padded_content);
 void	ft_add_padding_onright(t_struct *t_specifier);
 void	ft_add_padding_onleft(int content_len, t_struct *t_specifier);
 void	ft_add_padding(t_struct *t_specifier);

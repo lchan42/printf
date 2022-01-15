@@ -587,13 +587,17 @@ int	main(void)
 	printf("real : ");			real_result = printf("%020d", -42000);
 	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
 	printf("----------------test with multiple c = 0\n");
-	write (1, "mine : ", 7);	result = ft_printf("%-2c*", 0);	printf("\n");
-	printf("real : ");			real_result = printf("%-2c*", 0);
+	write (1, "mine : ", 7);	result = ft_printf("[%-2c*]", 0);	printf("\n");
+	printf("real : ");			real_result = printf("[%-2c*]", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with multiple c= 0 and [-4]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%-4c*]", 0);	printf("\n");
+	printf("real : ");			real_result = printf("[%-4c*]", 0);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("----------------test with multiple c= 0 c = 'a' c = 0 and [-2][-3][-4]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%-2c%-3c%-4c]*", 0, 'a', 0);	printf("\n");
+	printf("real : ");			real_result = printf("[%-2c%-3c%-4c]*", 0, 'a', 0);
 	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
 
-	printf("----------------test with multiple c= 0 c = 'a' c = 0 and [-2][-3][-4]\n");
-	write (1, "mine : ", 7);	result = ft_printf("%-2c%-3c%-4c*", 0, 'a', 0);	printf("\n");
-	printf("real : ");			real_result = printf("%-2c%-3c%-4c*", 0, 'a', 0);
-	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
 
 }

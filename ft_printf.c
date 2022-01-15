@@ -253,58 +253,52 @@ void	ft_add_space_or_plus(char **t_specifier_content, int flag_value)
  ********************************************************************/
 /* ************************************************************************** */
 
+void	ft_add_padding_onright_cnull(t_struct *t_specifier, char **padded_content)
+{
+	int		i;
+	char	padding;
+
+	i = 0;
+	if (t_specifier->flag_value & ZERO)
+		padding = '0';
+	else
+		padding = ' ';
+	(*padded_content)[i] = '\0';
+	while (i < t_specifier->width)
+		(*padded_content)[++i] = padding;
+}
+
 void	ft_add_padding_onright(t_struct *t_specifier)
 {
-	int		i;
-	int		case_c;
-	char	padding;
 	char	*padded_content;
+	int		i;
+	char	padding;
 
-	i = -1;
-	case_c = 0;
-	if (t_specifier->flag_value & ZERO)
-		padding = '0';
-	else
-		padding = ' ';
-	if (!t_specifier->content && t_specifier->specifier == 'c')
-		case_c = -1;
-	padded_content = (char *)malloc(t_specifier->width + case_c + 1);
+	padded_content = (char *)malloc(t_specifier->width + 1);
 	if (!padded_content)
 		return ;
-	while (t_specifier->content && t_specifier->content[++i])
-		padded_content[i] = t_specifier->content[i];
-	if (i == -1)
-		i++;
-	while (i < t_specifier->width + case_c)
-		padded_content[i++] = padding;
-	padded_content[t_specifier->width + case_c] = '\0';
-	free(t_specifier->content);
-	t_specifier->content = padded_content;
-}
-
-/*
-void	ft_add_padding_onright(int content_len, t_struct *t_specifier)
-{
-	int		i;
-	char	padding;
-	char	*padded_content;
-
-	i = -1;
-	if (t_specifier->flag_value & ZERO)
-		padding = '0';
+	if (!t_specifier->content && t_specifier->specifier == 'c')
+		ft_add_padding_onright_cnull(t_specifier, &padded_content);
 	else
-		padding = ' ';
-	padded_content = (char *)malloc(t_specifier->width + 1);
-	while (t_specifier->content[++i])
-		padded_content[i] = t_specifier->content[i];
-	while (i < t_specifier->width)
-		padded_content[i++] = padding;
-	padded_content[t_specifier->width] = '\0';
+	{
+		i = -1;
+		if (t_specifier->flag_value & ZERO)
+			padding = '0';
+		else
+			padding = ' ';
+		while (t_specifier->content[++i])
+			padded_content[i] = t_specifier->content[i];
+		while (i < t_specifier->width)
+			padded_content[i++] = padding;
+		padded_content[t_specifier->width] = '\0';
+	}
 	free(t_specifier->content);
 	t_specifier->content = padded_content;
 }
-*/
 
+// am i even using this function below ???
+//think my initial idea was to use this but je l ai fais bien salement dans la fonction padding on left
+// ft_add_padding_onleft_signed is a better name
 void	ft_add_padding_case_signed(t_struct *t_specifier, int content_len)
 {
 	char	*index;
@@ -368,6 +362,46 @@ void	ft_add_padding_onleft(int content_len, t_struct *t_specifier)
 	t_specifier->content = padded_content;
 }
 
+/*
+void	ft_add_padding_onleft(int content_len, t_struct *t_specifier)
+{	
+	int		i;
+	int		j;
+	char	padding;
+	char	*padded_content;
+
+	i = -1;
+	j = 0;
+	if (t_specifier->flag_value & ZERO)
+		padding = '0';
+	else
+		padding = ' ';
+	padded_content = (char *)malloc(t_specifier->width + 1);
+	if (!padded_content)
+		return ;
+	while (++i < t_specifier->width - content_len)
+		padded_content[i] = padding;
+	if (t_specifier->specifier == 'c' && !t_specifier->content)
+		while (i < t_specifier->width - 1 && j < content_len)
+			padded_content[i++] = t_specifier->content[j++];
+	else
+		while (i < t_specifier->width && j < content_len)
+		{
+			if (ft_strchr_booleen("di", t_specifier->specifier)
+				&& ft_strchr_booleen("-+ ", t_specifier->content[j])
+				&& padding == '0')
+			{
+				padded_content[0] = t_specifier->content[j++];
+				padded_content[i++] = padding;
+			}
+			else
+				padded_content[i++] = t_specifier->content[j++];
+		}
+	padded_content[i] = '\0';
+	free(t_specifier->content);
+	t_specifier->content = padded_content;
+}
+*/
 void	ft_add_padding(t_struct *t_specifier)
 {
 	int		content_len;
