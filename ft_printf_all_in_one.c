@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/23 18:52:53 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/23 19:21:47 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -310,11 +310,11 @@ void	ft_add_padding_onleft_bis(int content_len, t_struct *t_specifier,
 	while (*i < t_specifier->width && j < content_len)
 	{
 		if (ft_strchr_booleen("dixX", t_specifier->specifier)
-			&& ft_strchr_booleen("-+ x", t_specifier->content[j])
+			&& ft_strchr_booleen("-+ xX", t_specifier->content[j])
 			&& padding == '0')
 		{
 			if (ft_strchr_booleen("xX", t_specifier->specifier)
-					&& t_specifier->content[j] == 'x')
+					&& ft_strchr_booleen("xX", t_specifier->content[j]))
 				(*padded_content)[1] = t_specifier->content[j++];
 			else
 				(*padded_content)[0] = t_specifier->content[j++];
