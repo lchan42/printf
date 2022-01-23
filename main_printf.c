@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/14 19:48:02 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/23 18:26:41 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -599,5 +599,14 @@ int	main(void)
 	printf("real : ");			real_result = printf("[%-2c%-3c%-4c]*", 0, 'a', 0);
 	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
 
-
+	printf("GAVINFIELDER TEST THAT I FAILED ONCE \n");
+	printf("----------------test with x and [#010]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%#010x]", 43);	printf("\n");
+	printf("real : ");			real_result = printf("[%#010x]", 43);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
+	printf("GAVINFIELDER TEST THAT I FAILED ONCE \n");
+	printf("----------------test with x and [# 5]\n");
+	write (1, "mine : ", 7);	result = ft_printf("[%# 5x]", 43);	printf("\n");
+	printf("real : ");			real_result = printf("[%# 5x]", 43);
+	printf("\nresult = %d / %d\n", result, real_result); if(result != real_result) printf(" ERROR");	printf("\n");
 }

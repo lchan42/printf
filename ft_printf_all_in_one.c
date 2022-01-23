@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:45:07 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/23 14:43:16 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/23 18:52:53 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -309,17 +309,46 @@ void	ft_add_padding_onleft_bis(int content_len, t_struct *t_specifier,
 		padding = ' ';
 	while (*i < t_specifier->width && j < content_len)
 	{
-		if (ft_strchr_booleen("di", t_specifier->specifier)
-			&& ft_strchr_booleen("-+ ", t_specifier->content[j])
+		if (ft_strchr_booleen("dixX", t_specifier->specifier)
+			&& ft_strchr_booleen("-+ x", t_specifier->content[j])
 			&& padding == '0')
 		{
-			(*padded_content)[0] = t_specifier->content[j++];
+			if (ft_strchr_booleen("xX", t_specifier->specifier)
+					&& t_specifier->content[j] == 'x')
+				(*padded_content)[1] = t_specifier->content[j++];
+			else
+				(*padded_content)[0] = t_specifier->content[j++];
 			(*padded_content)[(*i)++] = padding;
 		}
 		else
 			(*padded_content)[(*i)++] = t_specifier->content[j++];
 	}
 }
+/** OLD VERSION
+void    ft_add_padding_onleft_bis(int content_len, t_struct *t_specifier,
+                char **padded_content, int *i)
+{
+        int             j;
+        char    padding;
+
+        j = 0;
+        if (t_specifier->flag_value & ZERO)
+                padding = '0';
+        else
+                padding = ' ';
+        while (*i < t_specifier->width && j < content_len)
+        {
+                if (ft_strchr_booleen("di", t_specifier->specifier)
+                        && ft_strchr_booleen("-+ ", t_specifier->content[j])
+                        && padding == '0')
+                {
+                        (*padded_content)[0] = t_specifier->content[j++];
+                        (*padded_content)[(*i)++] = padding;
+                }
+                else
+                        (*padded_content)[(*i)++] = t_specifier->content[j++];
+        }
+}*/
 
 void	ft_add_padding_onleft(int content_len, t_struct *t_specifier)
 {
