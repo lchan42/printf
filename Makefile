@@ -6,11 +6,23 @@
 #    By: lchan <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/12/02 20:57:58 by lchan             #+#    #+#              #
-#    Updated: 2022/01/14 17:57:25 by lchan            ###   ########.fr        #
+#    Updated: 2022/01/23 15:49:27 by lchan            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS		= ft_printf.c
+SRCS		=	utils_one.c\
+				utils_two.c\
+				chained_list.c\
+				add_sign_to_content.c\
+				add_padding.c\
+				add_precision.c\
+				add_content_to_chained_list.c\
+				case_csp.c\
+				case_duxxmajpercent.c\
+				specifier_tree.c\
+				cursor_jump_specifier.c\
+				parsing.c\
+				ft_printf.c\
 
 NAME		= libftprintf.a
 
@@ -23,7 +35,8 @@ OBJSBONUS	= ${SRCSBONUS:.c=.o}
 CC			= gcc
 RM			= rm -f
 
-CFLAGS		= -Wall -Werror -Wextra
+CFLAGS		=
+//CFLAGS		= -Wall -Werror -Wextra
 
 AR			= ar
 
