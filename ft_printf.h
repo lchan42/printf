@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 17:46:49 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/23 15:55:34 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/25 20:17:21 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ void	parsing_bonus(char *str, t_struct *t_specifier);
 int		parsing(char *str, t_list **strchain, va_list arg_list);
 	
 //ft_printf.c
-int		ft_printf(char *str, ...)
+int		ft_printf(const char *str, ...)
 	__attribute__((format (printf, 1, 2)));
 
 #endif
